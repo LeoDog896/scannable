@@ -3,18 +3,19 @@ module.exports = {
   "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": [
-    "@typescript-eslint",
+    // "@typescript-eslint",
     "eslint-plugin-tsdoc",
     "eslint-plugin-perf-standard",
-    "functional"
+    // TODO: nayuki is only using OOP; lets get this working first.
+    // "functional"
   ],
   "extends": [
     "notninja/es6",
     'plugin:@typescript-eslint/recommended',
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "plugin:functional/no-object-orientation",
-    "plugin:functional/currying",
-    "plugin:functional/stylistic",
+    // "plugin:functional/no-object-orientation",
+    // "plugin:functional/currying",
+    // "plugin:functional/stylistic",
   ],
   "env": {
     "node": true,
@@ -35,7 +36,7 @@ module.exports = {
     "prefer-const": "error",
     "no-use-before-define": "error",
     "@typescript-eslint/no-unused-vars": "error",
-    "functional/functional-parameters": "warn",
+    // "functional/functional-parameters": "warn",
     "@typescript-eslint/prefer-readonly": "error",
     "@typescript-eslint/prefer-nullish-coalescing": "error",
     "@typescript-eslint/prefer-optional-chain": "error",
