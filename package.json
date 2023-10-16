@@ -1,0 +1,87 @@
+{
+  "name": "scannable",
+  "version": "0.7.0",
+  "sideEffects": false,
+  "description": "Create QR codes with ease.",
+  "homepage": "https://leodog896.github.io/scannable",
+  "repository": "https://github.com/LeoDog896/scannable",
+  "bugs": {
+    "url": "https://github.com/LeoDog896/scannable/issues"
+  },
+  "author": {
+    "name": "Tristan F.",
+    "email": "leodog896@gmail.com",
+    "url": "https://github.com/LeoDog896"
+  },
+  "contributors": [
+    {
+      "name": "Alasdair Mercer",
+      "email": "mercer.alasdair@gmail.com",
+      "url": "https://neocotic.com"
+    }
+  ],
+  "license": "GPL-3.0",
+  "keywords": [
+    "qr",
+    "qrcode",
+    "qr-code"
+  ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=15"
+  },
+  "scripts": {
+    "start": "npm run test:watch",
+    "build": "tsc",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch --coverage",
+    "lint": "eslint",
+    "prepare": "npm run build",
+    "size": "npm run build && size-limit",
+    "analyze": "size-limit --why",
+    "prepublishOnly": "npm run build && npm run size && eslint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "module": "dist/index.js",
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "6 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^7.0.8",
+    "@size-limit/webpack": "^7.0.8",
+    "@size-limit/webpack-why": "^7.0.8",
+    "@types/jest": "^28.1.6",
+    "@types/split": "^1.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.7",
+    "@typescript-eslint/parser": "^5.30.7",
+    "eslint": "^8.20.0",
+    "eslint-config-notninja": "^0.4.0",
+    "eslint-plugin-functional": "^4.2.0",
+    "eslint-plugin-perf-standard": "^1.0.3",
+    "eslint-plugin-tsdoc": "^0.2.14",
+    "husky": "^8.0.1",
+    "jest": "^28.1.3",
+    "size-limit": "^7.0.8",
+    "split": "^1.0.1",
+    "ts-jest": "^28.0.7",
+    "typescript": "^4.7.4"
+  }
+}
