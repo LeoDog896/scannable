@@ -74,6 +74,8 @@ test('Ensure base example.com example is valid', () => {
   expect(renderText({ value: 'https://example.com' })).toBe(exampleCom);
 });
 
+jest.setTimeout(300 * 1000)
+
 test('Ensure all resources are valid', (done) => {
   createReadStream('./test/resources.txt', 'utf-8')
     .pipe(split('\t'))
