@@ -1,69 +1,58 @@
-import { renderText } from '../src';
+import { generateFrame, renderText } from '../src';
 import { createReadStream } from 'fs';
 import split from 'split';
 
-const exampleCom = `####### ### ##### #######
-#     # #  ## #   #     #
-# ### #    ### ## # ### #
-# ### # # #   ##  # ### #
-# ### # ## #   ## # ### #
-#     #   # # #   #     #
+const exampleCom = `#######  ##   # # #######
+#     # ####   #  #     #
+# ### # # #  ## # # ### #
+# ### #   ##  ##  # ### #
+# ### # #   ## ## # ### #
+#     #  #####  # #     #
 ####### # # # # # #######
-         #  #  ##        
-#     ## #  #    #  ## ##
- #  #   ## ##      ## ## 
- ##  #### ##    ## # # ##
-#   #  ## ### ## ##      
-# ## ##  # ## #  # ## #  
-  ###  ########  #  #   #
-# # ###  #   #  ## ######
-       # ## ###    ## ## 
- ########## ### ######  #
-         ###   ##   ###  
-####### #  ## ### # ##  #
-#     #  ####  ##   #  # 
-# ### #  ##  ## ##### ## 
-# ### #  ###  ##      # #
-# ### #  # #  ####    ## 
-#     #  # # ## ## # ### 
-####### # ### ##  # #####`;
-
-// import { promises as fs } from "fs"
-// import crypto from "crypto"
-// await fs.writeFile("./test/resources.txt", "");
-// for (let i = 1; i < 4096; i += 10) {
-//   const randomStr = crypto.randomBytes(i).toString("hex")
-
-//   const code = renderText({ value: randomStr });
-
-//   await fs.appendFile(`./test/resources.txt`, `${randomStr}:${code}\t`) // seperator is &&\n
-// }
-
-const google = `####### ## ## # # #######
-#     # ### ### # #     #
-# ### # ## #####  # ### #
-# ### #   ## #  # # ### #
-# ### #  ##   ##  # ### #
-#     # #   ##  # #     #
-####### # # # # # #######
-         #### ###        
-##  #####  ##  ### #  ###
-# #  # ## # ###  #  #   #
-#    ##   #####     ## # 
-## ##   #  #  # #  #  # #
-   #### ####    ####    #
-  #  # ## # ## ## # ## ##
-##  ###   ####    ####   
-   #   ##### ## #  ##    
- #   ## #####  ######  ##
-        #  #   ##   #### 
-####### ## ### ## # #    
-#     # ## ### ##   # ## 
-# ### # #      ######### 
-# ### #  ###  ##      # #
-# ### #   #   #      #   
-#     # ##   #  #   ###  
+        ##  #            
+##### ## ### #  ### # ## 
+### ## ##   # #####   ## 
+#  # ##    #   ## #### # 
+ # #   ##   ###    #  ## 
+   ## #### ## # ####     
+#   ## #  #   # ### #  ##
+## ######     #    ### ##
+######  #  #   ####  #  #
+ ##   ###  ########## ###
+           ###  #   #   #
+####### ##  ### # # #  ##
+#     #   #   # #   ##  #
+# ### # # #    ######### 
+# ### # #   ##  ###### # 
+# ### # # #   #      #   
+#     # # ### ## ##    ##
 ####### ### ###  #### # #`;
+
+const google = `#######   #  #  # #######
+#     # #   ##  # #     #
+# ### #   ##  #   # ### #
+# ### #  # ## #   # ### #
+# ### # # ## ##   # ### #
+#     #  #  ##### #     #
+####### # # # # # #######
+          ## ###         
+  # ### # # ## ###  #  # 
+    ##  ####   ###   ## #
+   #  ## ###    #   # ###
+##  #   ### #  #  ## # # 
+##  ### #  ## ###   ## # 
+ #     ###  #   # ## #   
+# # # #  # ##  ######  # 
+#   #    ## ####       ##
+## ##### ##     #####    
+        #   #   #   ### #
+#######   ### ### # ###  
+#     # # ### ###   ## # 
+# ### # ###  ########  # 
+# ### #  ## # # #  ## ## 
+# ### # # ### ###  ### ##
+#     #  # ### #   # ####
+#######     #      ###  #`;
 
 // Weird version edge case
 test("Ensure https://google.com works", () => {
@@ -77,17 +66,28 @@ test('Ensure base example.com example is valid', () => {
 jest.setTimeout(300 * 1000)
 
 test('Ensure all resources are valid', (done) => {
-  createReadStream('./test/resources.txt', 'utf-8')
-    .pipe(split('\t'))
+  let cnt = 0;
+  let value: string | null = null;
+  createReadStream('./test/resourceGen.txt', 'utf-16le')
+    .pipe(split('\n'))
     .on('data', (entry: string) => {
       if (!entry) {
         return;
       }
 
-      const key = entry.split(':')[0];
-      const value = entry.split(':')[1];
+      if (value == null) {
+        value = entry;
+        return;
+      }
 
-      expect(renderText({ value: key })).toBe(value);
+      const int = BigInt(entry).toString(2).split("").map(x => x == "1" ? 1 : 0);
+      const arr = new Uint8Array(int);
+
+      expect(generateFrame({ value }).buffer).toBe(arr);
+
+      console.log(`Tested ${++cnt}th frame!`);
+
+      value = null;
     })
     .on('close', done);
 });

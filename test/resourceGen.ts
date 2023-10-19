@@ -20,14 +20,6 @@ function stringify(buffer: Uint8Array) {
   return str.substring(0, str.length - 1);
 }
 
-function fromString(str: string) {
-  const buffer = new Uint8Array(Math.ceil(str.length / 8));
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] == "1") buffer[Math.floor(i / 8)] |= 1 << (i % 8);
-  }
-  return buffer;
-}
-
 // open a file
 const fd = await fs.open("test/resourceGen.txt", "w");
 
