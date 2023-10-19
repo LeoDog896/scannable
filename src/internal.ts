@@ -2,60 +2,12 @@
 
 import { ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection.js";
 import { ReedSolomonGenerator } from "./qr/reedSolomon.js";
+import { ECC_CODEWORDS_PER_BLOCK, NUM_ERROR_CORRECTION_BLOCKS } from "./qr/constants.js";
+import { appendBits, getBytes } from "./qr/bitUtils.js";
 
 type bit = number;
 type byte = number;
 type int = number;
-
-
-/*-- Private tables of constants --*/
-
-const QrCode_ECC_CODEWORDS_PER_BLOCK: Array<Array<int>> = [
-  // Version: (note that index 0 is for padding, and is set to an illegal value)
-  //0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40    Error correction level
-  [
-    -1, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30,
-    28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
-    30, 30, 30,
-  ], // Low
-  [
-    -1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26,
-    26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28,
-    28, 28, 28,
-  ], // Medium
-  [
-    -1, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28,
-    26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
-    30, 30, 30,
-  ], // Quartile
-  [
-    -1, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28,
-    26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
-    30, 30, 30,
-  ], // High
-];
-
-const QrCode_NUM_ERROR_CORRECTION_BLOCKS: Array<Array<int>> = [
-  // Version: (note that index 0 is for padding, and is set to an illegal value)
-  //0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40    Error correction level
-  [
-    -1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10,
-    12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25,
-  ], // Low
-  [
-    -1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17,
-    17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49,
-  ], // Medium
-  [
-    -1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23,
-    23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68,
-  ], // Quartile
-  [
-    -1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25,
-    25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77,
-    81,
-  ], // High
-];
 
 /** Returns true iff the i'th bit of x is set to 1. */
 function getBit(x: int, i: int): boolean {
@@ -100,32 +52,6 @@ export class QrSegment_Mode {
 }
 
 /*
- * An appendable sequence of bits. The implicit constructor creates an empty bit buffer (length 0).
- */
-class BitBuffer extends Array<bit> {
-  // Packs this buffer's bits into bytes in big endian,
-  // padding with '0' bit values, and returns the new array.
-  public getBytes(): Array<byte> {
-    const result: Array<byte> = [];
-    while (result.length * 8 < this.length) result.push(0);
-    this.forEach((b: bit, i: int) => (result[i >>> 3] |= b << (7 - (i & 7))));
-    return result;
-  }
-
-  // Appends the given number of low bits of the given
-  // value to this sequence. Requires 0 <= val < 2^len.
-  public appendBits(val: int, len: int): void {
-    if (len < 0 || len > 31 || val >>> len != 0) throw 'Value out of range';
-    for (
-      let i = len - 1;
-      i >= 0;
-      i-- // Append bit by bit
-    )
-      this.push((val >>> i) & 1);
-  }
-}
-
-/*
  * A public class that represents a character string to be encoded in a QR Code symbol.
  * Each segment has a mode, and a sequence of characters that is already encoded as
  * a sequence of bits. Instances of this class are immutable.
@@ -138,8 +64,8 @@ export class QrSegment {
 
   // Returns a segment representing the given binary data encoded in byte mode.
   public static makeBytes(data: Array<byte>): QrSegment {
-    const bb = new BitBuffer();
-    data.forEach((b: byte) => bb.appendBits(b, 8));
+    const bb: number[] = [];
+    data.forEach((b: byte) => appendBits(bb, b, 8));
     return new QrSegment(QrSegment_Mode.BYTE, data.length, bb);
   }
 
@@ -147,18 +73,18 @@ export class QrSegment {
   public static makeNumeric(digits: string): QrSegment {
     if (!this.NUMERIC_REGEX.test(digits))
       throw 'String contains non-numeric characters';
-    const bb = new BitBuffer();
+    const bb: number[] = [];
     let i: int;
     for (
       i = 0;
       i + 3 <= digits.length;
       i += 3 // Process groups of 3
     )
-      bb.appendBits(parseInt(digits.substr(i, 3), 10), 10);
+      appendBits(bb, parseInt(digits.substr(i, 3), 10), 10);
     const rem: int = digits.length - i;
     if (rem > 0)
       // 1 or 2 digits remaining
-      bb.appendBits(parseInt(digits.substring(i), 10), rem * 3 + 1);
+      appendBits(bb, parseInt(digits.substring(i), 10), rem * 3 + 1);
     return new QrSegment(QrSegment_Mode.NUMERIC, digits.length, bb);
   }
 
@@ -168,18 +94,18 @@ export class QrSegment {
   public static makeAlphanumeric(text: string): QrSegment {
     if (!this.ALPHANUMERIC_REGEX.test(text))
       throw 'String contains unencodable characters in alphanumeric mode';
-    const bb = new BitBuffer();
+    const bb: number[] = [];
     let i: int;
     for (i = 0; i + 2 <= text.length; i += 2) {
       // Process groups of 2
       let temp: int =
         QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i)) * 45;
       temp += QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i + 1));
-      bb.appendBits(temp, 11);
+      appendBits(bb, temp, 11);
     }
     if (i < text.length)
       // 1 character remaining
-      bb.appendBits(QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i)), 6);
+      appendBits(bb, QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i)), 6);
     return new QrSegment(QrSegment_Mode.ALPHANUMERIC, text.length, bb);
   }
 
@@ -198,14 +124,14 @@ export class QrSegment {
   // Returns a segment representing an Extended Channel Interpretation
   // (ECI) designator with the given assignment value.
   public static makeEci(assignVal: int): QrSegment {
-    const bb = new BitBuffer();
-    if (0 <= assignVal && assignVal < 1 << 7) bb.appendBits(assignVal, 8);
+    const bb: number[] = [];
+    if (0 <= assignVal && assignVal < 1 << 7) appendBits(bb, assignVal, 8);
     else if (1 << 7 <= assignVal && assignVal < 1 << 14) {
-      bb.appendBits(2, 2);
-      bb.appendBits(assignVal, 14);
+      appendBits(bb, 2, 2);
+      appendBits(bb, assignVal, 14);
     } else if (1 << 14 <= assignVal && assignVal < 1000000) {
-      bb.appendBits(6, 3);
-      bb.appendBits(assignVal, 21);
+      appendBits(bb, 6, 3);
+      appendBits(bb, assignVal, 21);
     } else throw 'ECI assignment value out of range';
     return new QrSegment(QrSegment_Mode.ECI, 0, bb);
   }
@@ -361,18 +287,18 @@ export class QrCode {
     );
 
     // Concatenate all segments to create the data bit string
-    const bb = new BitBuffer();
+    const bb: number[] = [];
     segs.forEach((seg: QrSegment) => {
-      bb.appendBits(seg.mode.modeBits, 4);
-      bb.appendBits(seg.numChars, seg.mode.numCharCountBits(version));
+      appendBits(bb, seg.mode.modeBits, 4);
+      appendBits(bb, seg.numChars, seg.mode.numCharCountBits(version));
       seg.getBits().forEach((b: bit) => bb.push(b));
     });
 
     // Add terminator and pad up to a byte if applicable
     const dataCapacityBits: int = QrCode.getNumDataCodewords(version, ecl) * 8;
     if (bb.length > dataCapacityBits) throw 'Assertion error';
-    bb.appendBits(0, Math.min(4, dataCapacityBits - bb.length));
-    bb.appendBits(0, (8 - (bb.length % 8)) % 8);
+    appendBits(bb, 0, Math.min(4, dataCapacityBits - bb.length));
+    appendBits(bb, 0, (8 - (bb.length % 8)) % 8);
     if (bb.length % 8 != 0) throw 'Assertion error';
 
     // Pad with alternating bytes until data capacity is reached
@@ -381,10 +307,10 @@ export class QrCode {
       bb.length < dataCapacityBits;
       padByte ^= 0xec ^ 0x11
     )
-      bb.appendBits(padByte, 8);
+      appendBits(bb, padByte, 8);
 
     // Create the QR Code symbol
-    return new QrCode(bb.getBytes(), mask, version, ecl);
+    return new QrCode(getBytes(bb), mask, version, ecl);
   }
 
   /*-- Fields --*/
@@ -601,8 +527,8 @@ export class QrCode {
       throw 'Invalid argument';
 
     // Calculate parameter numbers
-    const numBlocks: int = QrCode_NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
-    const blockEccLen: int = QrCode_ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver];
+    const numBlocks: int = NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
+    const blockEccLen: int = ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver];
     const rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(ver) / 8);
     const numShortBlocks: int = numBlocks - (rawCodewords % numBlocks);
     const shortBlockLen: int = Math.floor(rawCodewords / numBlocks);
@@ -832,8 +758,8 @@ export class QrCode {
       throw 'Version number out of range';
     return (
       Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
-      QrCode_ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] *
-        QrCode_NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver]
+      ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] *
+        NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver]
     );
   }
 

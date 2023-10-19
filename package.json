@@ -64,6 +64,7 @@
   "size-limit": [
     {
       "path": "dist/index.js",
+      "import": "{ renderText, renderCanvas, renderContext, renderTwoTone, renderSVG, defaultImageLikeRenderOptions, generateFrame, defaultFrameOptions }",
       "limit": "6 KB"
     }
   ],
@@ -73,6 +74,7 @@
     "@size-limit/webpack-why": "^7.0.8",
     "@types/chance": "^1.1.5",
     "@types/jest": "^28.1.6",
+    "@types/node": "^20.8.7",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
     "chance": "^1.1.11",
