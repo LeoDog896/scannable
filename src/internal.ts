@@ -341,7 +341,7 @@ export class QrCode {
     segs: Array<QrSegment>,
     ecl: ErrorCorrection,
     minVersion: int = 1,
-    maxVersion: int = 1,
+    maxVersion: int = 40,
     mask: int = -1,
     boostEcl = true
   ): QrCode {
@@ -369,7 +369,7 @@ export class QrCode {
       }
       if (version >= maxVersion)
         // All versions in the range could not fit the given data
-        throw 'Data too long';
+        throw `Data too long (> ${dataCapacityBits / 8} bytes)`;
     }
 
     // Increase the error correction level while the data still fits in the current version number
