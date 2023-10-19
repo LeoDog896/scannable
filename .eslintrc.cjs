@@ -7,7 +7,7 @@ module.exports = {
     "eslint-plugin-tsdoc",
     "eslint-plugin-perf-standard",
     // TODO: nayuki is only using OOP; lets get this working first.
-    // "functional"
+    "functional"
   ],
   "extends": [
     "notninja/es6",

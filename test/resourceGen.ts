@@ -1,9 +1,12 @@
 import { promises as fs } from 'fs';
 import { generateFrame } from '../src';
+import chance from 'chance';
+
+const rng = new chance.Chance("scannable");
 
 function randomInRanges(ranges: [number, number][]) {
   const total = ranges.reduce((acc, [min, max]) => acc + max - min + 1, 0);
-  let random = Math.floor(Math.random() * total);
+  let random = rng.integer({ min: 0, max: total - 1 });
   for (const [min, max] of ranges) {
     if (random < max - min + 1) return min + random;
     random -= max - min + 1;
@@ -16,8 +19,7 @@ const randomChars = (length: number) => Array.from({ length }, () => String.from
 ]))).join("");
 
 function stringify(buffer: Uint8Array) {
-  const str = BigInt("0b" + [...buffer].map(x => x == 1 ? "1" : "0").join("")).toString();
-  return str.substring(0, str.length - 1);
+  return BigInt("0b" + [...buffer].map(x => x == 1 ? "1" : "0").join("")).toString();
 }
 
 // open a file

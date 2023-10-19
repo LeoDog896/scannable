@@ -1,4 +1,5 @@
-import { ErrorCorrection, QrCode } from "./internal";
+import { type ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection";
+import { QrCode } from "./internal";
 
 /* All Mask types with visible descriptions. */
 export enum MaskType {
@@ -37,7 +38,7 @@ export type UserFacingFrameOptions<T = FrameOptions> = Partial<T> & { readonly v
 export type RenderOptionsDefaults<T = FrameOptions> = Omit<T, 'value'> & { readonly value?: string };
 
 export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> = Object.freeze({
-  level: ErrorCorrection.LOW,
+  level: ErrorCorrectionConstants.LOW,
 });
 
 /**

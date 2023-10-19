@@ -1,6 +1,6 @@
 import { generateFrame, renderText } from '../src';
 import { createReadStream } from 'fs';
-import split from 'split';
+import readline from 'readline';
 
 const exampleCom = `#######  ##   # # #######
 #     # ####   #  #     #
@@ -65,31 +65,27 @@ test('Ensure base example.com example is valid', () => {
 
 jest.setTimeout(300 * 1000)
 
-test('Ensure all resources are valid', (done) => {
-  let cnt = 0;
+test('Ensure all resources are valid', async () => {
   let value: string | null = null;
-  createReadStream('./test/resourceGen.txt', 'utf-16le')
-    .pipe(split('\n'))
-    .on('data', (entry: string) => {
-      if (!entry) {
-        return;
-      }
+  const fileStream = createReadStream('./test/resourceGen.txt');
 
-      if (value == null) {
-        value = entry;
-        return;
-      }
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
 
-      const int = BigInt(entry).toString(2).split("").map(x => x == "1" ? 1 : 0);
-      const arr = new Uint8Array(int);
+  for await (const entry of rl) {
+    if (value == null) {
+      value = entry;
+      continue;
+    }
 
-      expect(generateFrame({ value }).buffer).toBe(arr);
+    const int = new Uint8Array(BigInt(entry).toString(2).split("").map(x => x == "1" ? 1 : 0));
 
-      console.log(`Tested ${++cnt}th frame!`);
+    expect(generateFrame({ value }).buffer).toStrictEqual(int);
 
-      value = null;
-    })
-    .on('close', done);
+    value = null;
+  }
 });
 
 test('Ensure options can be passed to text renderer', () => {

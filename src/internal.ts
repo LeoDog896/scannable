@@ -1,5 +1,8 @@
 /* Code ported from https://www.nayuki.io/page/qr-code-generator-library */
 
+import { ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection";
+import { ReedSolomonGenerator } from "./qr/reedSolomon";
+
 type bit = number;
 type byte = number;
 type int = number;
@@ -93,33 +96,6 @@ export class QrSegment_Mode {
     else if (10 <= ver && ver <= 26) return this.numBitsCharCount[1];
     else if (27 <= ver && ver <= 40) return this.numBitsCharCount[2];
     else throw 'Version number out of range';
-  }
-}
-
-/*
- * Represents the error correction level used in a QR Code symbol.
- */
-export class ErrorCorrection {
-  /*-- Constants --*/
-
-  public static readonly LOW = new ErrorCorrection(0, 1);
-  public static readonly MEDIUM = new ErrorCorrection(1, 0);
-  public static readonly QUARTILE = new ErrorCorrection(2, 3);
-  public static readonly HIGH = new ErrorCorrection(3, 2);
-
-  /*-- Fields --*/
-
-  // In the range 0 to 3 (unsigned 2-bit integer).
-  public readonly ordinal: int;
-
-  // (Package-private) In the range 0 to 3 (unsigned 2-bit integer).
-  public readonly formatBits: int;
-
-  /*-- Constructor --*/
-
-  private constructor(ord: int, fb: int) {
-    this.ordinal = ord;
-    this.formatBits = fb;
   }
 }
 
@@ -373,7 +349,7 @@ export class QrCode {
     }
 
     // Increase the error correction level while the data still fits in the current version number
-    [ErrorCorrection.MEDIUM, ErrorCorrection.QUARTILE, ErrorCorrection.HIGH].forEach(
+    [ErrorCorrectionConstants.MEDIUM, ErrorCorrectionConstants.QUARTILE, ErrorCorrectionConstants.HIGH].forEach(
       (newEcl: ErrorCorrection) => {
         // From low to high
         if (
@@ -871,73 +847,4 @@ export class QrCode {
   private static readonly PENALTY_N2: int = 3;
   private static readonly PENALTY_N3: int = 40;
   private static readonly PENALTY_N4: int = 10;
-}
-
-/*---- Private helper classes ----*/
-
-/*
- * Computes the Reed-Solomon error correction codewords for a sequence of data codewords
- * at a given degree. Objects are immutable, and the state only depends on the degree.
- * This class exists because each data block in a QR Code shares the same the divisor polynomial.
- */
-class ReedSolomonGenerator {
-  // Coefficients of the divisor polynomial, stored from highest to lowest power, excluding the leading term which
-  // is always 1. For example the polynomial x^3 + 255x^2 + 8x + 93 is stored as the uint8 array {255, 8, 93}.
-  private readonly coefficients: Array<byte> = [];
-
-  // Creates a Reed-Solomon ECC generator for the given degree. This could be implemented
-  // as a lookup table over all possible parameter values, instead of as an algorithm.
-  public constructor(degree: int) {
-    if (degree < 1 || degree > 255) throw 'Degree out of range';
-    const coefs = this.coefficients;
-
-    // Start with the monomial x^0
-    for (let i = 0; i < degree - 1; i++) coefs.push(0);
-    coefs.push(1);
-
-    // Compute the product polynomial (x - r^0) * (x - r^1) * (x - r^2) * ... * (x - r^{degree-1}),
-    // drop the highest term, and store the rest of the coefficients in order of descending powers.
-    // Note that r = 0x02, which is a generator element of this field GF(2^8/0x11D).
-    let root = 1;
-    for (let i = 0; i < degree; i++) {
-      // Multiply the current product by (x - r^i)
-      for (let j = 0; j < coefs.length; j++) {
-        coefs[j] = ReedSolomonGenerator.multiply(coefs[j], root);
-        if (j + 1 < coefs.length) coefs[j] ^= coefs[j + 1];
-      }
-      root = ReedSolomonGenerator.multiply(root, 0x02);
-    }
-  }
-
-  // Computes and returns the Reed-Solomon error correction codewords for the given
-  // sequence of data codewords. The returned object is always a new byte array.
-  // This method does not alter this object's state (because it is immutable).
-  public getRemainder(data: Array<byte>): Array<byte> {
-    // Compute the remainder by performing polynomial division
-    const result: Array<byte> = this.coefficients.map(() => 0);
-    data.forEach((b: byte) => {
-      const factor: byte = b ^ (result.shift() as int);
-      result.push(0);
-      for (let i = 0; i < result.length; i++)
-        result[i] ^= ReedSolomonGenerator.multiply(
-          this.coefficients[i],
-          factor
-        );
-    });
-    return result;
-  }
-
-  // Returns the product of the two given field elements modulo GF(2^8/0x11D). The arguments and result
-  // are unsigned 8-bit integers. This could be implemented as a lookup table of 256*256 entries of uint8.
-  private static multiply(x: byte, y: byte): byte {
-    if (x >>> 8 != 0 || y >>> 8 != 0) throw 'Byte out of range';
-    // Russian peasant multiplication
-    let z: int = 0;
-    for (let i = 7; i >= 0; i--) {
-      z = (z << 1) ^ ((z >>> 7) * 0x11d);
-      z ^= ((y >>> i) & 1) * x;
-    }
-    if (z >>> 8 != 0) throw 'Assertion error';
-    return z;
-  }
 }
