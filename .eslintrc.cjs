@@ -6,16 +6,16 @@ module.exports = {
     // "@typescript-eslint",
     "eslint-plugin-tsdoc",
     "eslint-plugin-perf-standard",
-    // TODO: nayuki is only using OOP; lets get this working first.
     "functional"
   ],
   "extends": [
     "notninja/es6",
     'plugin:@typescript-eslint/recommended',
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    // TODO: nayuki is only using OOP; lets get this working first.
     // "plugin:functional/no-object-orientation",
     // "plugin:functional/currying",
-    // "plugin:functional/stylistic",
+    "plugin:functional/stylistic",
   ],
   "env": {
     "node": true,

@@ -1,5 +1,5 @@
-import { type ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection";
-import { QrCode } from "./internal";
+import { type ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection.js";
+import { QrCode } from "./internal.js";
 
 /* All Mask types with visible descriptions. */
 export enum MaskType {

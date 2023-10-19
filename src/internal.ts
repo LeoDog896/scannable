@@ -1,7 +1,7 @@
 /* Code ported from https://www.nayuki.io/page/qr-code-generator-library */
 
-import { ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection";
-import { ReedSolomonGenerator } from "./qr/reedSolomon";
+import { ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection.js";
+import { ReedSolomonGenerator } from "./qr/reedSolomon.js";
 
 type bit = number;
 type byte = number;

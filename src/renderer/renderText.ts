@@ -1,5 +1,5 @@
-import { FrameOptions, UserFacingFrameOptions, defaultFrameOptions, generateFrame, FrameResults } from '../Frame';
-import { WithRequired } from '../utils';
+import { FrameOptions, UserFacingFrameOptions, defaultFrameOptions, generateFrame, FrameResults } from '../Frame.js';
+import { WithRequired } from '../utils.js';
 interface IsolatedTextRenderOptions {
   /** The activated characters (black on a regular QR code.) */
   readonly foregroundChar: string;

@@ -1,5 +1,5 @@
-import { FrameOptions, UserFacingFrameOptions, defaultFrameOptions, generateFrame } from '../Frame';
-import { WithRequired } from '../utils';
+import { FrameOptions, UserFacingFrameOptions, defaultFrameOptions, generateFrame } from '../Frame.js';
+import { WithRequired } from '../utils.js';
 
 interface TwoToneRenderOptions extends FrameOptions {
   readonly solidCharacter: string;

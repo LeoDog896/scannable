@@ -1,4 +1,4 @@
-import { UserFacingFrameOptions, generateFrame, FrameOptions, RenderOptionsDefaults, defaultFrameOptions } from '../Frame';
+import { UserFacingFrameOptions, generateFrame, FrameOptions, RenderOptionsDefaults, defaultFrameOptions } from '../Frame.js';
 
 export interface ImageLikeRenderOptions extends FrameOptions {
   readonly backgroundColor: string;
