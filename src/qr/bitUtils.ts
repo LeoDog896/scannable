@@ -1,4 +1,4 @@
-/** 
+/**
  * Packs this buffer's bits into bytes in big endian,
  * padding with '0' bit values, and returns the new array.
  */
@@ -20,5 +20,5 @@ export function appendBits(buffer: number[], val: number, len: number): void {
     i >= 0;
     i-- // Append bit by bit
   )
-  buffer.push((val >>> i) & 1);
+    buffer.push((val >>> i) & 1);
 }

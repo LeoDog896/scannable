@@ -27,6 +27,8 @@ export type ErrorCorrectionLevel = Lowercase<keyof typeof CONSTANTS>;
 /**
  * Converts an error correction level string to an error correction object.
  */
-export function toErrorCorrectionLevel(level: ErrorCorrectionLevel): ErrorCorrection {
+export function toErrorCorrectionLevel(
+  level: ErrorCorrectionLevel
+): ErrorCorrection {
   return CONSTANTS[level.toUpperCase() as Uppercase<typeof level>];
 }

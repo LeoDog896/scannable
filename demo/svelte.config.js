@@ -12,9 +12,9 @@ const config = {
 	],
 
 	kit: {
-    paths: {
-      base: "/scannable"
-    },
+		paths: {
+			base: '/scannable'
+		},
 		adapter: adapter()
 	}
 };

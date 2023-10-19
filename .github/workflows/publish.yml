@@ -6,7 +6,6 @@ on:
   push:
     branches: [master]
 
-
 jobs:
   checks:
     if: github.event_name != 'push'
@@ -42,5 +41,5 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
-            branch: gh-pages
-            folder: demo/build
+          branch: gh-pages
+          folder: demo/build

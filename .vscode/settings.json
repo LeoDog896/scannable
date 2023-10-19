@@ -4,11 +4,7 @@
   "eslint.lintTask.enable": true,
   "eslint.enable": true,
   "eslint.validate": ["typescript"],
-  "eslint.probe": [
-    "javascript",
-    "typescript",
-    "markdown"
-  ],
+  "eslint.probe": ["javascript", "typescript", "markdown"],
   "editor.tabSize": 2,
   "editor.detectIndentation": false
 }

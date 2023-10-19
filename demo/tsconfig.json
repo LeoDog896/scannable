@@ -1,6 +1,6 @@
 {
 	"extends": "./.svelte-kit/tsconfig.json",
-  "compilerOptions": {
-    "target": "es2021"
-  }
+	"compilerOptions": {
+		"target": "es2021"
+	}
 }

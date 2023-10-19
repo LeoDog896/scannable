@@ -1,5 +1,8 @@
-import { type ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection.js";
-import { QrCode } from "./internal.js";
+import {
+  type ErrorCorrection,
+  CONSTANTS as ErrorCorrectionConstants,
+} from './qr/errorCorrection.js';
+import { QrCode } from './internal.js';
 
 /* All Mask types with visible descriptions. */
 export enum MaskType {
@@ -10,7 +13,7 @@ export enum MaskType {
   FOUR_BY_TWO_RECTANGLE_ALTERNATING = 4,
   FLOWER_IN_SQAURE = 5,
   DIAGONAL_SQUARE = 6,
-  ALTERNATING_PUZZLE_PIECE = 7
+  ALTERNATING_PUZZLE_PIECE = 7,
 }
 
 /**
@@ -22,7 +25,7 @@ export interface FrameOptions {
   /** The ECC level to be used. Default is L */
   readonly level: ErrorCorrection;
   /** The mask type. IF none is specified, one will be automatically chosen based on badness. */
-  readonly maskType?: MaskType
+  readonly maskType?: MaskType;
 }
 
 export interface FrameResults {
@@ -32,14 +35,19 @@ export interface FrameResults {
 }
 
 /** Utility to make value required for users inputting in a value. */
-export type UserFacingFrameOptions<T = FrameOptions> = Partial<T> & { readonly value: string }
+export type UserFacingFrameOptions<T = FrameOptions> = Partial<T> & {
+  readonly value: string;
+};
 
 /** Make every option required except for value -- the opposite of UserFacingFrameOptions */
-export type RenderOptionsDefaults<T = FrameOptions> = Omit<T, 'value'> & { readonly value?: string };
+export type RenderOptionsDefaults<T = FrameOptions> = Omit<T, 'value'> & {
+  readonly value?: string;
+};
 
-export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> = Object.freeze({
-  level: ErrorCorrectionConstants.LOW,
-});
+export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> =
+  Object.freeze({
+    level: ErrorCorrectionConstants.LOW,
+  });
 
 /**
  * Generates information for a QR code frame based on a specific value to be encoded.
@@ -47,10 +55,15 @@ export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> = Object.f
  * @param options - the options to be used
  */
 export function generateFrame(options: UserFacingFrameOptions): FrameResults {
-  const qrCode = QrCode.encodeText(options.value, options.level ?? defaultFrameOptions.level);
+  const qrCode = QrCode.encodeText(
+    options.value,
+    options.level ?? defaultFrameOptions.level
+  );
 
   return {
-    buffer: Uint8Array.from(qrCode.modules.map(row => row.map(bit => bit ? 1 : 0)).flat()),
+    buffer: Uint8Array.from(
+      qrCode.modules.map((row) => row.map((bit) => (bit ? 1 : 0))).flat()
+    ),
     width: qrCode.size,
     version: qrCode.version,
   };

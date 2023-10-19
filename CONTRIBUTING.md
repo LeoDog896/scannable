@@ -9,7 +9,7 @@ raising a new issue. Commenting on an existing issue is usually preferred over r
 Please ensure that all files conform to the coding standards, using the same coding style as the rest of the code base.
 This can be done easily via command-line:
 
-``` bash
+```bash
 # install/update package dependencies
 $ npm install
 # run test suite

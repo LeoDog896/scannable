@@ -14,6 +14,6 @@ const jestConfig = {
       },
     ],
   },
-}
+};
 
-export default jestConfig
+export default jestConfig;

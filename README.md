@@ -6,7 +6,6 @@
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/scannable)
 ![npm](https://img.shields.io/npm/dt/scannable)
 
-
 A simple QR code generation library.
 
 Demo: https://leodog896.github.io/scannable.
@@ -14,9 +13,11 @@ Demo: https://leodog896.github.io/scannable.
 TIP: If you want to try out the methods, open inspect element.
 
 ## Install
+
 `npm i scannable`
 
 ### Deno
+
 ```ts
 import { ... } from "https://esm.sh/scannable"; // all functions are exposed!
 ```
@@ -27,19 +28,22 @@ import { ... } from "https://esm.sh/scannable"; // all functions are exposed!
 import { renderText, renderTwoTone, renderCanvas, renderSVG } from 'scannable';
 
 // Render it to a canvas
-renderCanvas("https://yahoo.net", coolCanvas)
+renderCanvas('https://yahoo.net', coolCanvas);
 
 // Outputs a qr code with ASCII text
 const text = renderText('https://example.com');
 
 // You can also specify options
-const customText = renderText({ value: "https://google.com", foregroundChar: "%" })
+const customText = renderText({
+  value: 'https://google.com',
+  foregroundChar: '%',
+});
 
 // You can even use unicode characters to squish text.
-const unicodeText = renderTwoTone('https://leodog896.github.io/scannable')
+const unicodeText = renderTwoTone('https://leodog896.github.io/scannable');
 
 // Or make an SVG!
-const svgHTML = renderSVG("https://netflix.com")
+const svgHTML = renderSVG('https://netflix.com');
 ```
 
 ## Development

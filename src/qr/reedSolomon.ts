@@ -1,7 +1,7 @@
 /**
-  * Returns the product of the two given field elements modulo GF(2^8/0x11D). The arguments and result
-  * are unsigned 8-bit integers. This could be implemented as a lookup table of 256*256 entries of uint8.
-  */
+ * Returns the product of the two given field elements modulo GF(2^8/0x11D). The arguments and result
+ * are unsigned 8-bit integers. This could be implemented as a lookup table of 256*256 entries of uint8.
+ */
 function multiply(x: number, y: number): number {
   if (x >>> 8 != 0 || y >>> 8 != 0) throw 'Byte out of range';
   // Russian peasant multiplication
@@ -27,7 +27,8 @@ export class ReedSolomonGenerator {
   // Creates a Reed-Solomon ECC generator for the given degree. This could be implemented
   // as a lookup table over all possible parameter values, instead of as an algorithm.
   public constructor(degree: number) {
-    if (degree < 1 || degree > 255) throw new RangeError('Degree out of range (1 to 255)');
+    if (degree < 1 || degree > 255)
+      throw new RangeError('Degree out of range (1 to 255)');
     const coefs = this.coefficients;
 
     // Start with the monomial x^0
@@ -55,13 +56,10 @@ export class ReedSolomonGenerator {
     // Compute the remainder by performing polynomial division
     const result: Array<number> = this.coefficients.map(() => 0);
     data.forEach((b: number) => {
-      const factor = b ^ result.shift() as number;
+      const factor = b ^ (result.shift() as number);
       result.push(0);
       for (let i = 0; i < result.length; i++)
-        result[i] ^= multiply(
-          this.coefficients[i],
-          factor
-        );
+        result[i] ^= multiply(this.coefficients[i], factor);
     });
     return result;
   }

@@ -1,9 +1,15 @@
 /* Code ported from https://www.nayuki.io/page/qr-code-generator-library */
 
-import { ErrorCorrection, CONSTANTS as ErrorCorrectionConstants } from "./qr/errorCorrection.js";
-import { ReedSolomonGenerator } from "./qr/reedSolomon.js";
-import { ECC_CODEWORDS_PER_BLOCK, NUM_ERROR_CORRECTION_BLOCKS } from "./qr/constants.js";
-import { appendBits, getBytes } from "./qr/bitUtils.js";
+import {
+  ErrorCorrection,
+  CONSTANTS as ErrorCorrectionConstants,
+} from './qr/errorCorrection.js';
+import { ReedSolomonGenerator } from './qr/reedSolomon.js';
+import {
+  ECC_CODEWORDS_PER_BLOCK,
+  NUM_ERROR_CORRECTION_BLOCKS,
+} from './qr/constants.js';
+import { appendBits, getBytes } from './qr/bitUtils.js';
 
 type bit = number;
 type byte = number;
@@ -275,16 +281,18 @@ export class QrCode {
     }
 
     // Increase the error correction level while the data still fits in the current version number
-    [ErrorCorrectionConstants.MEDIUM, ErrorCorrectionConstants.QUARTILE, ErrorCorrectionConstants.HIGH].forEach(
-      (newEcl: ErrorCorrection) => {
-        // From low to high
-        if (
-          boostEcl &&
-          dataUsedBits <= QrCode.getNumDataCodewords(version, newEcl) * 8
-        )
-          ecl = newEcl;
-      }
-    );
+    [
+      ErrorCorrectionConstants.MEDIUM,
+      ErrorCorrectionConstants.QUARTILE,
+      ErrorCorrectionConstants.HIGH,
+    ].forEach((newEcl: ErrorCorrection) => {
+      // From low to high
+      if (
+        boostEcl &&
+        dataUsedBits <= QrCode.getNumDataCodewords(version, newEcl) * 8
+      )
+        ecl = newEcl;
+    });
 
     // Concatenate all segments to create the data bit string
     const bb: number[] = [];
@@ -728,7 +736,7 @@ export class QrCode {
       const step: int =
         ver == 32 ? 26 : Math.ceil((size - 13) / (numAlign * 2 - 2)) * 2;
 
-        const result: Array<int> = [6];
+      const result: Array<int> = [6];
       for (let i = 0, pos = size - 7; i < numAlign - 1; i++, pos -= step)
         result.splice(1, 0, pos);
       return result;
