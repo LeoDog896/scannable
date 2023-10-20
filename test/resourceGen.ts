@@ -18,7 +18,10 @@ function randomInRanges(ranges: [number, number][]) {
 }
 
 const randomChars = (length: number) =>
-  Array(length).fill(0).map(() => String.fromCharCode(randomInRanges([[14, 20000]]))).join('');
+  Array(length)
+    .fill(0)
+    .map(() => String.fromCharCode(randomInRanges([[14, 20000]])))
+    .join('');
 
 /** Compresses a Uint8Array of binary 0s and 1s to a number */
 function stringify(buffer: Uint8Array) {

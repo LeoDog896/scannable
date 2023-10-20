@@ -10,9 +10,9 @@ module.exports = {
   extends: [
     'notninja/es6',
     'plugin:@typescript-eslint/recommended',
-    "plugin:functional/currying",
+    'plugin:functional/currying',
     'plugin:functional/stylistic',
-    'prettier'
+    'prettier',
   ],
   env: {
     node: true,
@@ -40,11 +40,11 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["test/**/*.ts"],
+      files: ['test/**/*.ts'],
       rules: {
-        "functional/functional-parameters": "off",
-      }
-    }
+        'functional/functional-parameters': 'off',
+      },
+    },
   ],
-  root: true
+  root: true,
 };

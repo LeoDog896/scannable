@@ -32,15 +32,15 @@ function getBit(x: int, i: int): boolean {
  * used on both the x and y axes. Each value in the resulting sequence is in the range [0, 177).
  * This stateless pure function could be implemented as table of 40 variable-length lists of integers.
  */
-function getAlignmentPatternPositions(ver: int): Array<int> {
-  if (ver < MIN_VERSION || ver > MAX_VERSION)
+function getAlignmentPatternPositions(version: int): Array<int> {
+  if (version < MIN_VERSION || version > MAX_VERSION)
     throw 'Version number out of range';
-  else if (ver == 1) return [];
+  else if (version == 1) return [];
   else {
-    const size: int = ver * 4 + 17;
-    const numAlign: int = Math.floor(ver / 7) + 2;
+    const size: int = version * 4 + 17;
+    const numAlign: int = Math.floor(version / 7) + 2;
     const step: int =
-      ver == 32 ? 26 : Math.ceil((size - 13) / (numAlign * 2 - 2)) * 2;
+      version == 32 ? 26 : Math.ceil((size - 13) / (numAlign * 2 - 2)) * 2;
 
     const result: Array<int> = [6];
     for (let i = 0, pos = size - 7; i < numAlign - 1; i++, pos -= step)
