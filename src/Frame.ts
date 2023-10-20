@@ -1,6 +1,8 @@
 import {
   type ErrorCorrection,
   CONSTANTS as ErrorCorrectionConstants,
+  ErrorCorrectionLevel,
+  toErrorCorrectionLevel,
 } from './qr/errorCorrection.js';
 import { encodeText } from './internal.js';
 
@@ -23,14 +25,17 @@ export interface FrameOptions {
   /** The value to be encoded. */
   readonly value: string;
   /** The ECC level to be used. Default is L */
-  readonly level: ErrorCorrection;
+  readonly level: ErrorCorrection | ErrorCorrectionLevel;
   /** The mask type. IF none is specified, one will be automatically chosen based on badness. */
   readonly maskType?: MaskType;
 }
 
 export interface FrameResults {
+  /** The Uint8array that represents this QR code - a "2d" array of 1|0 */
   readonly buffer: Uint8Array;
-  readonly width: number;
+  /** The size of the QR code - both width and height */
+  readonly size: number;
+  /** The version of the generated QR code, between 1 and 40. */
   readonly version: number;
 }
 
@@ -55,16 +60,17 @@ export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> =
  * @param options - the options to be used
  */
 export function generateFrame(options: UserFacingFrameOptions): FrameResults {
+  const level = options.level ?? defaultFrameOptions.level;
   const qrCode = encodeText(
     options.value,
-    options.level ?? defaultFrameOptions.level
+    typeof level == 'string' ? toErrorCorrectionLevel(level) : level
   );
 
   return {
     buffer: Uint8Array.from(
       qrCode.modules.map((row) => row.map((bit) => (bit ? 1 : 0))).flat()
     ),
-    width: qrCode.size,
+    size: qrCode.size,
     version: qrCode.version,
   };
 }

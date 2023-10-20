@@ -36,10 +36,10 @@ export const renderTwoTone = (
 
   let str = '';
 
-  for (let i = 0; i < frame.width; i += 2) {
-    for (let j = 0; j < frame.width; j++) {
-      const topExists = frame.buffer[i * frame.width + j];
-      const bottomExists = frame.buffer[(i + 1) * frame.width + j];
+  for (let i = 0; i < frame.size; i += 2) {
+    for (let j = 0; j < frame.size; j++) {
+      const topExists = frame.buffer[i * frame.size + j];
+      const bottomExists = frame.buffer[(i + 1) * frame.size + j];
 
       if (topExists && bottomExists) {
         str += processedOptions.solidCharacter;
@@ -51,7 +51,7 @@ export const renderTwoTone = (
         str += processedOptions.emptyCharacter;
       }
     }
-    if (i !== frame.width - 1) {
+    if (i !== frame.size - 1) {
       str += '\n';
     }
   }

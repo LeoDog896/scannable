@@ -55,19 +55,19 @@ export const renderSVG = (
 
   const frame = generateFrame(processedOptions);
 
-  const moduleSizeWidth = processedOptions.width / frame.width;
-  const moduleSizeHeight = processedOptions.height / frame.width;
+  const moduleSizeWidth = processedOptions.width / frame.size;
+  const moduleSizeHeight = processedOptions.height / frame.size;
 
   let rectangles: { x: number; y: number; enabled: boolean }[] = [];
 
-  for (let i = 0; i < frame.width; i++) {
-    for (let j = 0; j < frame.width; j++) {
+  for (let i = 0; i < frame.size; i++) {
+    for (let j = 0; j < frame.size; j++) {
       rectangles = [
         ...rectangles,
         {
           x: moduleSizeWidth * i,
           y: moduleSizeHeight * j,
-          enabled: frame.buffer[j * frame.width + i] === 1,
+          enabled: frame.buffer[j * frame.size + i] === 1,
         },
       ];
     }

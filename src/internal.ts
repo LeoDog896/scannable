@@ -67,7 +67,7 @@ function getNumRawDataModules(ver: int): int {
   return result;
 }
 
-/** 
+/**
  * Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
  * QR Code of the given version number and error correction level, with remainder bits discarded.
  * This stateless pure function could be implemented as a (40*4)-cell lookup table.
@@ -196,9 +196,7 @@ export class QrCode {
     this.drawFinderPattern(3, this.size - 4);
 
     // Draw numerous alignment patterns
-    const alignPatPos: Array<int> = getAlignmentPatternPositions(
-      this.version
-    );
+    const alignPatPos: Array<int> = getAlignmentPatternPositions(this.version);
     const numAlign: int = alignPatPos.length;
     for (let i = 0; i < numAlign; i++) {
       for (let j = 0; j < numAlign; j++) {
@@ -307,8 +305,7 @@ export class QrCode {
   private addEccAndInterleave(data: Array<byte>): Array<byte> {
     const ver: int = this.version;
     const ecl: ErrorCorrection = this.errorCorrectionLevel;
-    if (data.length != getNumDataCodewords(ver, ecl))
-      throw 'Invalid argument';
+    if (data.length != getNumDataCodewords(ver, ecl)) throw 'Invalid argument';
 
     // Calculate parameter numbers
     const numBlocks: int = NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
@@ -348,9 +345,7 @@ export class QrCode {
   // Draws the given sequence of 8-bit codewords (data and error correction) onto the entire
   // data area of this QR Code symbol. Function modules need to be marked off before this is called.
   private drawCodewords(data: Array<byte>): void {
-    if (
-      data.length != Math.floor(getNumRawDataModules(this.version) / 8)
-    )
+    if (data.length != Math.floor(getNumRawDataModules(this.version) / 8))
       throw 'Invalid argument';
     let i: int = 0; // Bit index into the data
     // Do the funny zigzag scan
@@ -528,8 +523,7 @@ function encodeSegments(
   let version: int;
   let dataUsedBits: int;
   for (version = minVersion; ; version++) {
-    const dataCapacityBits: int =
-      getNumDataCodewords(version, ecl) * 8; // Number of data bits available
+    const dataCapacityBits: int = getNumDataCodewords(version, ecl) * 8; // Number of data bits available
     const usedBits: number | null = getTotalBits(segs, version);
     if (usedBits != null && usedBits <= dataCapacityBits) {
       dataUsedBits = usedBits;
@@ -547,10 +541,7 @@ function encodeSegments(
     ErrorCorrectionConstants.HIGH,
   ].forEach((newEcl: ErrorCorrection) => {
     // From low to high
-    if (
-      boostEcl &&
-      dataUsedBits <= getNumDataCodewords(version, newEcl) * 8
-    )
+    if (boostEcl && dataUsedBits <= getNumDataCodewords(version, newEcl) * 8)
       ecl = newEcl;
   });
 
@@ -570,11 +561,7 @@ function encodeSegments(
   if (bb.length % 8 != 0) throw 'Assertion error';
 
   // Pad with alternating bytes until data capacity is reached
-  for (
-    let padByte = 0xec;
-    bb.length < dataCapacityBits;
-    padByte ^= 0xec ^ 0x11
-  )
+  for (let padByte = 0xec; bb.length < dataCapacityBits; padByte ^= 0xec ^ 0x11)
     appendBits(bb, padByte, 8);
 
   // Create the QR Code symbol

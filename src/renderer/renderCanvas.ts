@@ -56,18 +56,18 @@ export const renderContext = (
 
   const frame = generateFrame(processedOptions);
 
-  const rawModuleSizeWidth = processedOptions.width / frame.width;
-  const rawModuleSizeHeight = processedOptions.height / frame.width;
+  const rawModuleSizeWidth = processedOptions.width / frame.size;
+  const rawModuleSizeHeight = processedOptions.height / frame.size;
 
-  const offsetX = ((rawModuleSizeWidth % 1) * frame.width) / 2;
-  const offsetY = ((rawModuleSizeHeight % 1) * frame.width) / 2;
+  const offsetX = ((rawModuleSizeWidth % 1) * frame.size) / 2;
+  const offsetY = ((rawModuleSizeHeight % 1) * frame.size) / 2;
 
   const moduleSizeWidth = Math.floor(rawModuleSizeWidth);
   const moduleSizeHeight = Math.floor(rawModuleSizeHeight);
 
-  for (let i = 0; i < frame.width; i++) {
-    for (let j = 0; j < frame.width; j++) {
-      if (frame.buffer[j * frame.width + i]) {
+  for (let i = 0; i < frame.size; i++) {
+    for (let j = 0; j < frame.size; j++) {
+      if (frame.buffer[j * frame.size + i]) {
         context.fillStyle = processedOptions.foregroundColor;
         context.globalAlpha = processedOptions.foregroundAlpha;
 

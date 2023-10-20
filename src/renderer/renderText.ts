@@ -19,15 +19,15 @@ export const renderTextFromFrame = (
 ): string => {
   let str = '';
 
-  for (let i = 0; i < frame.width; i++) {
-    for (let j = 0; j < frame.width; j++) {
-      if (frame.buffer[j * frame.width + i]) {
+  for (let i = 0; i < frame.size; i++) {
+    for (let j = 0; j < frame.size; j++) {
+      if (frame.buffer[j * frame.size + i]) {
         str += options.foregroundChar;
       } else {
         str += options.backgroundChar;
       }
     }
-    if (i !== frame.width - 1) {
+    if (i !== frame.size - 1) {
       str += '\n';
     }
   }
