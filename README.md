@@ -6,7 +6,9 @@
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/scannable)
 ![npm](https://img.shields.io/npm/dt/scannable)
 
-A simple QR code generation library.
+QR code generation for a modern web.
+
+> The core of this is from [nayuki's QR code generator](https://github.com/nayuki/QR-Code-generator/)
 
 Demo: https://leodog896.github.io/scannable.
 

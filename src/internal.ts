@@ -28,9 +28,68 @@ function getBit(x: int, i: int): boolean {
   return ((x >>> i) & 1) != 0;
 }
 
+/**
+ * Returns a sequence of positions of the alignment patterns in ascending order. These positions are
+ * used on both the x and y axes. Each value in the resulting sequence is in the range [0, 177).
+ * This stateless pure function could be implemented as table of 40 variable-length lists of integers.
+ */
+function getAlignmentPatternPositions(ver: int): Array<int> {
+  if (ver < MIN_VERSION || ver > MAX_VERSION)
+    throw 'Version number out of range';
+  else if (ver == 1) return [];
+  else {
+    const size: int = ver * 4 + 17;
+    const numAlign: int = Math.floor(ver / 7) + 2;
+    const step: int =
+      ver == 32 ? 26 : Math.ceil((size - 13) / (numAlign * 2 - 2)) * 2;
+
+    const result: Array<int> = [6];
+    for (let i = 0, pos = size - 7; i < numAlign - 1; i++, pos -= step)
+      result.splice(1, 0, pos);
+    return result;
+  }
+}
+
+/**
+ * Returns the number of data bits that can be stored in a QR Code of the given version number, after
+ * all function modules are excluded. This includes remainder bits, so it might not be a multiple of 8.
+ * The result is in the range [208, 29648]. This could be implemented as a 40-entry lookup table.
+ */
+function getNumRawDataModules(ver: int): int {
+  if (ver < MIN_VERSION || ver > MAX_VERSION)
+    throw 'Version number out of range';
+  let result: int = (16 * ver + 128) * ver + 64;
+  if (ver >= 2) {
+    const numAlign: int = Math.floor(ver / 7) + 2;
+    result -= (25 * numAlign - 10) * numAlign - 55;
+    if (ver >= 7) result -= 18 * 2; // Subtract version information
+  }
+  return result;
+}
+
+/** 
+ * Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
+ * QR Code of the given version number and error correction level, with remainder bits discarded.
+ * This stateless pure function could be implemented as a (40*4)-cell lookup table.
+ */
+function getNumDataCodewords(ver: int, ecl: ErrorCorrection): int {
+  if (ver < MIN_VERSION || ver > MAX_VERSION)
+    throw 'Version number out of range';
+  return (
+    Math.floor(getNumRawDataModules(ver) / 8) -
+    ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] *
+      NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver]
+  );
+}
+
+// For use in getPenaltyScore(), when evaluating which mask is best.
+const PENALTY_N1 = 3;
+const PENALTY_N2 = 3;
+const PENALTY_N3 = 40;
+const PENALTY_N4 = 10;
+
 /*
- * A class that represents an immutable square grid of black and white cells for a QR Code symbol,
- * with associated static functions to create a QR Code from user-supplied textual or binary data.
+ * A class that represents an immutable square grid of black and white cells for a QR Code symbol.
  * This class covers the QR Code model 2 specification, supporting all versions (sizes)
  * from 1 to 40, all 4 error correction levels.
  * This constructor creates a new QR Code symbol with the given version number, error correction level, binary data array,
@@ -38,108 +97,6 @@ function getBit(x: int, i: int): boolean {
  * that should not be invoked directly by the user. To go one level up, see the QrCode.encodeSegments() function.
  */
 export class QrCode {
-  /*-- Public static factory functions --*/
-
-  // Returns a QR Code symbol representing the specified Unicode text string at the specified error correction level.
-  // As a conservative upper bound, this function is guaranteed to succeed for strings that have 738 or fewer
-  // Unicode code points (not UTF-16 code units) if the low error correction level is used. The smallest possible
-  // QR Code version is automatically chosen for the output. The ECC level of the result may be higher than the
-  // ecl argument if it can be done without increasing the version.
-  public static encodeText(text: string, ecl: ErrorCorrection): QrCode {
-    const segs = makeSegments(text);
-    return QrCode.encodeSegments(segs, ecl);
-  }
-
-  // Returns a QR Code symbol representing the given binary data string at the given error correction level.
-  // This function always encodes using the binary segment mode, not any text mode. The maximum number of
-  // bytes allowed is 2953. The smallest possible QR Code version is automatically chosen for the output.
-  // The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
-  public static encodeBinary(data: Array<byte>, ecl: ErrorCorrection): QrCode {
-    const seg = makeBytes(data);
-    return QrCode.encodeSegments([seg], ecl);
-  }
-
-  // Returns a QR Code symbol representing the given data segments with the given encoding parameters.
-  // The smallest possible QR Code version within the given range is automatically chosen for the output.
-  // This function allows the user to create a custom sequence of segments that switches
-  // between modes (such as alphanumeric and binary) to encode text more efficiently.
-  // This function is considered to be lower level than simply encoding text or binary data.
-  public static encodeSegments(
-    segs: Array<QrSegment>,
-    ecl: ErrorCorrection,
-    minVersion: int = 1,
-    maxVersion: int = 40,
-    mask: int = -1,
-    boostEcl = true
-  ): QrCode {
-    if (
-      !(
-        MIN_VERSION <= minVersion &&
-        minVersion <= maxVersion &&
-        maxVersion <= MAX_VERSION
-      ) ||
-      mask < -1 ||
-      mask > 7
-    )
-      throw 'Invalid value';
-
-    // Find the minimal version number to use
-    let version: int;
-    let dataUsedBits: int;
-    for (version = minVersion; ; version++) {
-      const dataCapacityBits: int =
-        QrCode.getNumDataCodewords(version, ecl) * 8; // Number of data bits available
-      const usedBits: number | null = getTotalBits(segs, version);
-      if (usedBits != null && usedBits <= dataCapacityBits) {
-        dataUsedBits = usedBits;
-        break; // This version number is found to be suitable
-      }
-      if (version >= maxVersion)
-        // All versions in the range could not fit the given data
-        throw `Data too long (> ${dataCapacityBits / 8} bytes)`;
-    }
-
-    // Increase the error correction level while the data still fits in the current version number
-    [
-      ErrorCorrectionConstants.MEDIUM,
-      ErrorCorrectionConstants.QUARTILE,
-      ErrorCorrectionConstants.HIGH,
-    ].forEach((newEcl: ErrorCorrection) => {
-      // From low to high
-      if (
-        boostEcl &&
-        dataUsedBits <= QrCode.getNumDataCodewords(version, newEcl) * 8
-      )
-        ecl = newEcl;
-    });
-
-    // Concatenate all segments to create the data bit string
-    const bb: number[] = [];
-    segs.forEach((seg: QrSegment) => {
-      appendBits(bb, seg.mode.modeBits, 4);
-      appendBits(bb, seg.numChars, numCharCountBits(seg.mode, version));
-      seg.bitData.forEach((b: bit) => bb.push(b));
-    });
-
-    // Add terminator and pad up to a byte if applicable
-    const dataCapacityBits: int = QrCode.getNumDataCodewords(version, ecl) * 8;
-    if (bb.length > dataCapacityBits) throw 'Assertion error';
-    appendBits(bb, 0, Math.min(4, dataCapacityBits - bb.length));
-    appendBits(bb, 0, (8 - (bb.length % 8)) % 8);
-    if (bb.length % 8 != 0) throw 'Assertion error';
-
-    // Pad with alternating bytes until data capacity is reached
-    for (
-      let padByte = 0xec;
-      bb.length < dataCapacityBits;
-      padByte ^= 0xec ^ 0x11
-    )
-      appendBits(bb, padByte, 8);
-
-    // Create the QR Code symbol
-    return new QrCode(getBytes(bb), mask, version, ecl);
-  }
-
   /*-- Fields --*/
 
   // This QR Code symbol's version number, which is always between 1 and 40 (inclusive).
@@ -239,7 +196,7 @@ export class QrCode {
     this.drawFinderPattern(3, this.size - 4);
 
     // Draw numerous alignment patterns
-    const alignPatPos: Array<int> = QrCode.getAlignmentPatternPositions(
+    const alignPatPos: Array<int> = getAlignmentPatternPositions(
       this.version
     );
     const numAlign: int = alignPatPos.length;
@@ -350,13 +307,13 @@ export class QrCode {
   private addEccAndInterleave(data: Array<byte>): Array<byte> {
     const ver: int = this.version;
     const ecl: ErrorCorrection = this.errorCorrectionLevel;
-    if (data.length != QrCode.getNumDataCodewords(ver, ecl))
+    if (data.length != getNumDataCodewords(ver, ecl))
       throw 'Invalid argument';
 
     // Calculate parameter numbers
     const numBlocks: int = NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
     const blockEccLen: int = ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver];
-    const rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(ver) / 8);
+    const rawCodewords: int = Math.floor(getNumRawDataModules(ver) / 8);
     const numShortBlocks: int = numBlocks - (rawCodewords % numBlocks);
     const shortBlockLen: int = Math.floor(rawCodewords / numBlocks);
 
@@ -392,7 +349,7 @@ export class QrCode {
   // data area of this QR Code symbol. Function modules need to be marked off before this is called.
   private drawCodewords(data: Array<byte>): void {
     if (
-      data.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8)
+      data.length != Math.floor(getNumRawDataModules(this.version) / 8)
     )
       throw 'Invalid argument';
     let i: int = 0; // Bit index into the data
@@ -475,7 +432,7 @@ export class QrCode {
           runX = 1;
         } else {
           runX++;
-          if (runX == 5) result += QrCode.PENALTY_N1;
+          if (runX == 5) result += PENALTY_N1;
           else if (runX > 5) result++;
         }
       }
@@ -488,7 +445,7 @@ export class QrCode {
           runY = 1;
         } else {
           runY++;
-          if (runY == 5) result += QrCode.PENALTY_N1;
+          if (runY == 5) result += PENALTY_N1;
           else if (runY > 5) result++;
         }
       }
@@ -503,7 +460,7 @@ export class QrCode {
           color == this.modules[y + 1][x] &&
           color == this.modules[y + 1][x + 1]
         )
-          result += QrCode.PENALTY_N2;
+          result += PENALTY_N2;
       }
     }
 
@@ -513,7 +470,7 @@ export class QrCode {
         bits = ((bits << 1) & 0x7ff) | (this.modules[y][x] ? 1 : 0);
         if (x >= 10 && (bits == 0x05d || bits == 0x5d0))
           // Needs 11 bits accumulated
-          result += QrCode.PENALTY_N3;
+          result += PENALTY_N3;
       }
     }
     // Finder-like pattern in columns
@@ -522,7 +479,7 @@ export class QrCode {
         bits = ((bits << 1) & 0x7ff) | (this.modules[y][x] ? 1 : 0);
         if (y >= 10 && (bits == 0x05d || bits == 0x5d0))
           // Needs 11 bits accumulated
-          result += QrCode.PENALTY_N3;
+          result += PENALTY_N3;
       }
     }
 
@@ -536,63 +493,113 @@ export class QrCode {
     const total: int = this.size * this.size; // Note that size is odd, so black/total != 1/2
     // Compute the smallest integer k >= 0 such that (45-5k)% <= black/total <= (55+5k)%
     const k: int = Math.ceil(Math.abs(black * 20 - total * 10) / total) - 1;
-    result += k * QrCode.PENALTY_N4;
+    result += k * PENALTY_N4;
     return result;
   }
+}
 
-  /*-- Private static helper functions QrCode --*/
+/**
+ * Returns a QR Code symbol representing the given data segments with the given encoding parameters.
+ * The smallest possible QR Code version within the given range is automatically chosen for the output.
+ * This function allows the user to create a custom sequence of segments that switches
+ * between modes (such as alphanumeric and binary) to encode text more efficiently.
+ * This function is considered to be lower level than simply encoding text or binary data.
+ */
+function encodeSegments(
+  segs: Array<QrSegment>,
+  ecl: ErrorCorrection,
+  minVersion: int = 1,
+  maxVersion: int = 40,
+  mask: int = -1,
+  boostEcl = true
+): QrCode {
+  if (
+    !(
+      MIN_VERSION <= minVersion &&
+      minVersion <= maxVersion &&
+      maxVersion <= MAX_VERSION
+    ) ||
+    mask < -1 ||
+    mask > 7
+  )
+    throw 'Invalid value';
 
-  // Returns a sequence of positions of the alignment patterns in ascending order. These positions are
-  // used on both the x and y axes. Each value in the resulting sequence is in the range [0, 177).
-  // This stateless pure function could be implemented as table of 40 variable-length lists of integers.
-  private static getAlignmentPatternPositions(ver: int): Array<int> {
-    if (ver < MIN_VERSION || ver > MAX_VERSION)
-      throw 'Version number out of range';
-    else if (ver == 1) return [];
-    else {
-      const size: int = ver * 4 + 17;
-      const numAlign: int = Math.floor(ver / 7) + 2;
-      const step: int =
-        ver == 32 ? 26 : Math.ceil((size - 13) / (numAlign * 2 - 2)) * 2;
-
-      const result: Array<int> = [6];
-      for (let i = 0, pos = size - 7; i < numAlign - 1; i++, pos -= step)
-        result.splice(1, 0, pos);
-      return result;
+  // Find the minimal version number to use
+  let version: int;
+  let dataUsedBits: int;
+  for (version = minVersion; ; version++) {
+    const dataCapacityBits: int =
+      getNumDataCodewords(version, ecl) * 8; // Number of data bits available
+    const usedBits: number | null = getTotalBits(segs, version);
+    if (usedBits != null && usedBits <= dataCapacityBits) {
+      dataUsedBits = usedBits;
+      break; // This version number is found to be suitable
     }
+    if (version >= maxVersion)
+      // All versions in the range could not fit the given data
+      throw `Data too long (> ${dataCapacityBits / 8} bytes)`;
   }
 
-  // Returns the number of data bits that can be stored in a QR Code of the given version number, after
-  // all function modules are excluded. This includes remainder bits, so it might not be a multiple of 8.
-  // The result is in the range [208, 29648]. This could be implemented as a 40-entry lookup table.
-  private static getNumRawDataModules(ver: int): int {
-    if (ver < MIN_VERSION || ver > MAX_VERSION)
-      throw 'Version number out of range';
-    let result: int = (16 * ver + 128) * ver + 64;
-    if (ver >= 2) {
-      const numAlign: int = Math.floor(ver / 7) + 2;
-      result -= (25 * numAlign - 10) * numAlign - 55;
-      if (ver >= 7) result -= 18 * 2; // Subtract version information
-    }
-    return result;
-  }
+  // Increase the error correction level while the data still fits in the current version number
+  [
+    ErrorCorrectionConstants.MEDIUM,
+    ErrorCorrectionConstants.QUARTILE,
+    ErrorCorrectionConstants.HIGH,
+  ].forEach((newEcl: ErrorCorrection) => {
+    // From low to high
+    if (
+      boostEcl &&
+      dataUsedBits <= getNumDataCodewords(version, newEcl) * 8
+    )
+      ecl = newEcl;
+  });
 
-  // Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
-  // QR Code of the given version number and error correction level, with remainder bits discarded.
-  // This stateless pure function could be implemented as a (40*4)-cell lookup table.
-  private static getNumDataCodewords(ver: int, ecl: ErrorCorrection): int {
-    if (ver < MIN_VERSION || ver > MAX_VERSION)
-      throw 'Version number out of range';
-    return (
-      Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
-      ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] *
-        NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver]
-    );
-  }
+  // Concatenate all segments to create the data bit string
+  const bb: number[] = [];
+  segs.forEach((seg: QrSegment) => {
+    appendBits(bb, seg.mode.modeBits, 4);
+    appendBits(bb, seg.numChars, numCharCountBits(seg.mode, version));
+    seg.bitData.forEach((b: bit) => bb.push(b));
+  });
 
-  // For use in getPenaltyScore(), when evaluating which mask is best.
-  private static readonly PENALTY_N1: int = 3;
-  private static readonly PENALTY_N2: int = 3;
-  private static readonly PENALTY_N3: int = 40;
-  private static readonly PENALTY_N4: int = 10;
+  // Add terminator and pad up to a byte if applicable
+  const dataCapacityBits: int = getNumDataCodewords(version, ecl) * 8;
+  if (bb.length > dataCapacityBits) throw 'Assertion error';
+  appendBits(bb, 0, Math.min(4, dataCapacityBits - bb.length));
+  appendBits(bb, 0, (8 - (bb.length % 8)) % 8);
+  if (bb.length % 8 != 0) throw 'Assertion error';
+
+  // Pad with alternating bytes until data capacity is reached
+  for (
+    let padByte = 0xec;
+    bb.length < dataCapacityBits;
+    padByte ^= 0xec ^ 0x11
+  )
+    appendBits(bb, padByte, 8);
+
+  // Create the QR Code symbol
+  return new QrCode(getBytes(bb), mask, version, ecl);
+}
+
+/**
+ * Returns a QR Code symbol representing the specified Unicode text string at the specified error correction level.
+ * As a conservative upper bound, this function is guaranteed to succeed for strings that have 738 or fewer
+ * Unicode code points (not UTF-16 code units) if the low error correction level is used. The smallest possible
+ * QR Code version is automatically chosen for the output. The ECC level of the result may be higher than the
+ * ecl argument if it can be done without increasing the version.
+ */
+export function encodeText(text: string, ecl: ErrorCorrection): QrCode {
+  const segs = makeSegments(text);
+  return encodeSegments(segs, ecl);
+}
+
+/**
+ * Returns a QR Code symbol representing the given binary data string at the given error correction level.
+ * This function always encodes using the binary segment mode, not any text mode. The maximum number of
+ * bytes allowed is 2953. The smallest possible QR Code version is automatically chosen for the output.
+ * The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
+ */
+export function encodeBinary(data: Array<byte>, ecl: ErrorCorrection): QrCode {
+  const seg = makeBytes(data);
+  return encodeSegments([seg], ecl);
 }

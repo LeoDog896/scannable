@@ -1,8 +1,8 @@
 {
   "name": "scannable",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "sideEffects": false,
-  "description": "Create QR codes with ease.",
+  "description": "QR code generation for a modern web.",
   "homepage": "https://leodog896.github.io/scannable",
   "repository": "https://github.com/LeoDog896/scannable",
   "type": "module",
@@ -21,7 +21,7 @@
       "url": "https://neocotic.com"
     }
   ],
-  "license": "GPL-3.0",
+  "license": "MIT",
   "keywords": [
     "qr",
     "qrcode",

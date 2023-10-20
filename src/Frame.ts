@@ -2,7 +2,7 @@ import {
   type ErrorCorrection,
   CONSTANTS as ErrorCorrectionConstants,
 } from './qr/errorCorrection.js';
-import { QrCode } from './internal.js';
+import { encodeText } from './internal.js';
 
 /* All Mask types with visible descriptions. */
 export enum MaskType {
@@ -55,7 +55,7 @@ export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> =
  * @param options - the options to be used
  */
 export function generateFrame(options: UserFacingFrameOptions): FrameResults {
-  const qrCode = QrCode.encodeText(
+  const qrCode = encodeText(
     options.value,
     options.level ?? defaultFrameOptions.level
   );
