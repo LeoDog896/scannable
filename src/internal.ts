@@ -9,6 +9,14 @@ import {
   ECC_CODEWORDS_PER_BLOCK,
   NUM_ERROR_CORRECTION_BLOCKS,
 } from './qr/constants.js';
+import { numCharCountBits } from './qr/segmentMode.js';
+import {
+  type QrSegment,
+  makeSegments,
+  makeBytes,
+  getTotalBits,
+} from './qr/segment.js';
+import { MIN_VERSION, MAX_VERSION } from './qr/constants.js';
 import { appendBits, getBytes } from './qr/bitUtils.js';
 
 type bit = number;
@@ -18,195 +26,6 @@ type int = number;
 /** Returns true iff the i'th bit of x is set to 1. */
 function getBit(x: int, i: int): boolean {
   return ((x >>> i) & 1) != 0;
-}
-
-/*
- * Represents the mode field of a segment. Immutable.
- */
-export class QrSegment_Mode {
-  /*-- Constants --*/
-
-  public static readonly NUMERIC = new QrSegment_Mode(0x1, [10, 12, 14]);
-  public static readonly ALPHANUMERIC = new QrSegment_Mode(0x2, [9, 11, 13]);
-  public static readonly BYTE = new QrSegment_Mode(0x4, [8, 16, 16]);
-  public static readonly KANJI = new QrSegment_Mode(0x8, [8, 10, 12]);
-  public static readonly ECI = new QrSegment_Mode(0x7, [0, 0, 0]);
-
-  /*-- Fields --*/
-
-  // An unsigned 4-bit integer value (range 0 to 15) representing the mode indicator bits for this mode object.
-  public readonly modeBits: int;
-
-  private readonly numBitsCharCount: [int, int, int];
-
-  /*-- Constructor --*/
-
-  private constructor(mode: int, ccbits: [int, int, int]) {
-    this.modeBits = mode;
-    this.numBitsCharCount = ccbits;
-  }
-
-  /*-- Method --*/
-
-  // (Package-private) Returns the bit width of the segment character count field for this mode object at the given version number.
-  public numCharCountBits(ver: int): int {
-    if (1 <= ver && ver <= 9) return this.numBitsCharCount[0];
-    else if (10 <= ver && ver <= 26) return this.numBitsCharCount[1];
-    else if (27 <= ver && ver <= 40) return this.numBitsCharCount[2];
-    else throw 'Version number out of range';
-  }
-}
-
-/*
- * A public class that represents a character string to be encoded in a QR Code symbol.
- * Each segment has a mode, and a sequence of characters that is already encoded as
- * a sequence of bits. Instances of this class are immutable.
- * This segment class imposes no length restrictions, but QR Codes have restrictions.
- * Even in the most favorable conditions, a QR Code can only hold 7089 characters of data.
- * Any segment longer than this is meaningless for the purpose of generating QR Codes.
- */
-export class QrSegment {
-  /*-- Static factory functions --*/
-
-  // Returns a segment representing the given binary data encoded in byte mode.
-  public static makeBytes(data: Array<byte>): QrSegment {
-    const bb: number[] = [];
-    data.forEach((b: byte) => appendBits(bb, b, 8));
-    return new QrSegment(QrSegment_Mode.BYTE, data.length, bb);
-  }
-
-  // Returns a segment representing the given string of decimal digits encoded in numeric mode.
-  public static makeNumeric(digits: string): QrSegment {
-    if (!this.NUMERIC_REGEX.test(digits))
-      throw 'String contains non-numeric characters';
-    const bb: number[] = [];
-    let i: int;
-    for (
-      i = 0;
-      i + 3 <= digits.length;
-      i += 3 // Process groups of 3
-    )
-      appendBits(bb, parseInt(digits.substr(i, 3), 10), 10);
-    const rem: int = digits.length - i;
-    if (rem > 0)
-      // 1 or 2 digits remaining
-      appendBits(bb, parseInt(digits.substring(i), 10), rem * 3 + 1);
-    return new QrSegment(QrSegment_Mode.NUMERIC, digits.length, bb);
-  }
-
-  // Returns a segment representing the given text string encoded in alphanumeric mode.
-  // The characters allowed are: 0 to 9, A to Z (uppercase only), space,
-  // dollar, percent, asterisk, plus, hyphen, period, slash, colon.
-  public static makeAlphanumeric(text: string): QrSegment {
-    if (!this.ALPHANUMERIC_REGEX.test(text))
-      throw 'String contains unencodable characters in alphanumeric mode';
-    const bb: number[] = [];
-    let i: int;
-    for (i = 0; i + 2 <= text.length; i += 2) {
-      // Process groups of 2
-      let temp: int =
-        QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i)) * 45;
-      temp += QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i + 1));
-      appendBits(bb, temp, 11);
-    }
-    if (i < text.length)
-      // 1 character remaining
-      appendBits(bb, QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i)), 6);
-    return new QrSegment(QrSegment_Mode.ALPHANUMERIC, text.length, bb);
-  }
-
-  // Returns a new mutable list of zero or more segments to represent the given Unicode text string.
-  // The result may use various segment modes and switch modes to optimize the length of the bit stream.
-  public static makeSegments(text: string): Array<QrSegment> {
-    // Select the most efficient segment encoding automatically
-    if (text == '') return [];
-    else if (this.NUMERIC_REGEX.test(text))
-      return [QrSegment.makeNumeric(text)];
-    else if (this.ALPHANUMERIC_REGEX.test(text))
-      return [QrSegment.makeAlphanumeric(text)];
-    else return [QrSegment.makeBytes(QrSegment.toUtf8ByteArray(text))];
-  }
-
-  // Returns a segment representing an Extended Channel Interpretation
-  // (ECI) designator with the given assignment value.
-  public static makeEci(assignVal: int): QrSegment {
-    const bb: number[] = [];
-    if (0 <= assignVal && assignVal < 1 << 7) appendBits(bb, assignVal, 8);
-    else if (1 << 7 <= assignVal && assignVal < 1 << 14) {
-      appendBits(bb, 2, 2);
-      appendBits(bb, assignVal, 14);
-    } else if (1 << 14 <= assignVal && assignVal < 1000000) {
-      appendBits(bb, 6, 3);
-      appendBits(bb, assignVal, 21);
-    } else throw 'ECI assignment value out of range';
-    return new QrSegment(QrSegment_Mode.ECI, 0, bb);
-  }
-
-  /*-- Fields --*/
-
-  // The mode indicator for this segment.
-  public readonly mode: QrSegment_Mode;
-
-  // The length of this segment's unencoded data, measured in characters. Always zero or positive.
-  public readonly numChars: int;
-
-  private readonly bitData: Array<bit>;
-
-  /*-- Constructor --*/
-
-  public constructor(mode: QrSegment_Mode, numChars: int, bitData: Array<bit>) {
-    if (numChars < 0) throw 'Invalid argument';
-    this.mode = mode;
-    this.numChars = numChars;
-    this.bitData = bitData.slice(); // Make defensive copy
-  }
-
-  /*-- Methods --*/
-
-  // Returns a copy of all bits, which is an array of 0s and 1s.
-  public getBits(): Array<bit> {
-    return this.bitData.slice(); // Make defensive copy
-  }
-
-  // Package-private helper function.
-  public static getTotalBits(segs: Array<QrSegment>, version: int): int | null {
-    if (version < QrCode.MIN_VERSION || version > QrCode.MAX_VERSION)
-      throw 'Version number out of range';
-    let result: int = 0;
-    for (const seg of segs) {
-      const ccbits: int = seg.mode.numCharCountBits(version);
-      // Fail if segment length value doesn't fit in the length field's bit-width
-      if (seg.numChars >= 1 << ccbits) return null;
-      result += 4 + ccbits + seg.getBits().length;
-    }
-    return result;
-  }
-
-  // Returns a new array of bytes representing the given string encoded in UTF-8.
-  private static toUtf8ByteArray(str: string): Array<byte> {
-    str = encodeURI(str);
-    const result: Array<byte> = [];
-    for (let i = 0; i < str.length; i++) {
-      if (str.charAt(i) != '%') result.push(str.charCodeAt(i));
-      else {
-        result.push(parseInt(str.substr(i + 1, 2), 16));
-        i += 2;
-      }
-    }
-    return result;
-  }
-
-  /*-- Constants --*/
-
-  // Can test whether a string is encodable in numeric mode (such as by using QrSegment.makeNumeric()).
-  public static readonly NUMERIC_REGEX: RegExp = /^[0-9]*$/;
-
-  // Can test whether a string is encodable in alphanumeric mode (such as by using QrSegment.makeAlphanumeric()).
-  public static readonly ALPHANUMERIC_REGEX: RegExp = /^[A-Z0-9 $%*+./:-]*$/;
-
-  // The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
-  private static readonly ALPHANUMERIC_CHARSET: string =
-    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
 }
 
 /*
@@ -227,7 +46,7 @@ export class QrCode {
   // QR Code version is automatically chosen for the output. The ECC level of the result may be higher than the
   // ecl argument if it can be done without increasing the version.
   public static encodeText(text: string, ecl: ErrorCorrection): QrCode {
-    const segs: Array<QrSegment> = QrSegment.makeSegments(text);
+    const segs = makeSegments(text);
     return QrCode.encodeSegments(segs, ecl);
   }
 
@@ -236,7 +55,7 @@ export class QrCode {
   // bytes allowed is 2953. The smallest possible QR Code version is automatically chosen for the output.
   // The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
   public static encodeBinary(data: Array<byte>, ecl: ErrorCorrection): QrCode {
-    const seg: QrSegment = QrSegment.makeBytes(data);
+    const seg = makeBytes(data);
     return QrCode.encodeSegments([seg], ecl);
   }
 
@@ -255,9 +74,9 @@ export class QrCode {
   ): QrCode {
     if (
       !(
-        QrCode.MIN_VERSION <= minVersion &&
+        MIN_VERSION <= minVersion &&
         minVersion <= maxVersion &&
-        maxVersion <= QrCode.MAX_VERSION
+        maxVersion <= MAX_VERSION
       ) ||
       mask < -1 ||
       mask > 7
@@ -270,7 +89,7 @@ export class QrCode {
     for (version = minVersion; ; version++) {
       const dataCapacityBits: int =
         QrCode.getNumDataCodewords(version, ecl) * 8; // Number of data bits available
-      const usedBits: number | null = QrSegment.getTotalBits(segs, version);
+      const usedBits: number | null = getTotalBits(segs, version);
       if (usedBits != null && usedBits <= dataCapacityBits) {
         dataUsedBits = usedBits;
         break; // This version number is found to be suitable
@@ -298,8 +117,8 @@ export class QrCode {
     const bb: number[] = [];
     segs.forEach((seg: QrSegment) => {
       appendBits(bb, seg.mode.modeBits, 4);
-      appendBits(bb, seg.numChars, seg.mode.numCharCountBits(version));
-      seg.getBits().forEach((b: bit) => bb.push(b));
+      appendBits(bb, seg.numChars, numCharCountBits(seg.mode, version));
+      seg.bitData.forEach((b: bit) => bb.push(b));
     });
 
     // Add terminator and pad up to a byte if applicable
@@ -352,7 +171,7 @@ export class QrCode {
   ) {
     // Check arguments and handle simple scalar fields
     if (mask < -1 || mask > 7) throw 'Mask value out of range';
-    if (version < QrCode.MIN_VERSION || version > QrCode.MAX_VERSION)
+    if (version < MIN_VERSION || version > MAX_VERSION)
       throw 'Version value out of range';
     this.version = version;
     this.size = version * 4 + 17;
@@ -374,7 +193,7 @@ export class QrCode {
     // Handle masking
     if (mask == -1) {
       // Automatically choose best mask
-      let minPenalty: int = 1000000000;
+      let minPenalty: int = Number.MAX_SAFE_INTEGER;
       for (let i = 0; i < 8; i++) {
         this.drawFormatBits(i);
         this.applyMask(i);
@@ -727,7 +546,7 @@ export class QrCode {
   // used on both the x and y axes. Each value in the resulting sequence is in the range [0, 177).
   // This stateless pure function could be implemented as table of 40 variable-length lists of integers.
   private static getAlignmentPatternPositions(ver: int): Array<int> {
-    if (ver < QrCode.MIN_VERSION || ver > QrCode.MAX_VERSION)
+    if (ver < MIN_VERSION || ver > MAX_VERSION)
       throw 'Version number out of range';
     else if (ver == 1) return [];
     else {
@@ -747,7 +566,7 @@ export class QrCode {
   // all function modules are excluded. This includes remainder bits, so it might not be a multiple of 8.
   // The result is in the range [208, 29648]. This could be implemented as a 40-entry lookup table.
   private static getNumRawDataModules(ver: int): int {
-    if (ver < QrCode.MIN_VERSION || ver > QrCode.MAX_VERSION)
+    if (ver < MIN_VERSION || ver > MAX_VERSION)
       throw 'Version number out of range';
     let result: int = (16 * ver + 128) * ver + 64;
     if (ver >= 2) {
@@ -762,7 +581,7 @@ export class QrCode {
   // QR Code of the given version number and error correction level, with remainder bits discarded.
   // This stateless pure function could be implemented as a (40*4)-cell lookup table.
   private static getNumDataCodewords(ver: int, ecl: ErrorCorrection): int {
-    if (ver < QrCode.MIN_VERSION || ver > QrCode.MAX_VERSION)
+    if (ver < MIN_VERSION || ver > MAX_VERSION)
       throw 'Version number out of range';
     return (
       Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
@@ -770,11 +589,6 @@ export class QrCode {
         NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver]
     );
   }
-
-  /*-- Constants --*/
-
-  public static readonly MIN_VERSION: int = 1;
-  public static readonly MAX_VERSION: int = 40;
 
   // For use in getPenaltyScore(), when evaluating which mask is best.
   private static readonly PENALTY_N1: int = 3;
