@@ -573,7 +573,7 @@ export function qrCode(
     mask,
     errorCorrectionLevel,
     modules,
-    isFunction: [],
+    isFunction,
   };
 }
 

@@ -1,9 +1,12 @@
+/* eslint-disable no-console */
+
 import { promises as fs } from 'fs';
 import { generateFrame } from '../src';
 import chance from 'chance';
 
 const rng = new chance.Chance('scannable');
 
+/** Gets a random value from any specified range */
 function randomInRanges(ranges: [number, number][]) {
   const total = ranges.reduce((acc, [min, max]) => acc + max - min + 1, 0);
   let random = rng.integer({ min: 0, max: total - 1 });
@@ -15,10 +18,9 @@ function randomInRanges(ranges: [number, number][]) {
 }
 
 const randomChars = (length: number) =>
-  Array.from({ length }, () =>
-    String.fromCharCode(randomInRanges([[14, 20000]]))
-  ).join('');
+  Array(length).fill(0).map(() => String.fromCharCode(randomInRanges([[14, 20000]]))).join('');
 
+/** Compresses a Uint8Array of binary 0s and 1s to a number */
 function stringify(buffer: Uint8Array) {
   return BigInt(
     '0b' + [...buffer].map((x) => (x == 1 ? '1' : '0')).join('')

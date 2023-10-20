@@ -2,7 +2,7 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   plugins: [
-    // "@typescript-eslint",
+    '@typescript-eslint',
     'eslint-plugin-tsdoc',
     'eslint-plugin-perf-standard',
     'functional',
@@ -10,11 +10,9 @@ module.exports = {
   extends: [
     'notninja/es6',
     'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    // TODO: nayuki is only using OOP; lets get this working first.
-    // "plugin:functional/no-object-orientation",
-    // "plugin:functional/currying",
+    "plugin:functional/currying",
     'plugin:functional/stylistic',
+    'prettier'
   ],
   env: {
     node: true,
@@ -24,7 +22,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 13,
     tsconfigRootDir: __dirname,
-    project: ['./tsconfig.json'],
+    project: ['./tsconfig.eslint.json'],
   },
   rules: {
     'valid-jsdoc': 'off',
@@ -35,10 +33,18 @@ module.exports = {
     'prefer-const': 'error',
     'no-use-before-define': 'error',
     '@typescript-eslint/no-unused-vars': 'error',
-    // "functional/functional-parameters": "warn",
     '@typescript-eslint/prefer-readonly': 'error',
     '@typescript-eslint/prefer-nullish-coalescing': 'error',
     '@typescript-eslint/prefer-optional-chain': 'error',
     '@typescript-eslint/prefer-for-of': 'error',
   },
+  overrides: [
+    {
+      files: ["test/**/*.ts"],
+      rules: {
+        "functional/functional-parameters": "off",
+      }
+    }
+  ],
+  root: true
 };
