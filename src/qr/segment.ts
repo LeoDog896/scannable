@@ -15,6 +15,8 @@ const ALPHANUMERIC_REGEX = /^[A-Z0-9 $%*+./:-]*$/;
 // The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
 const ALPHANUMERIC_CHARSET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
 
+type bit = 0 | 1;
+
 /*
  * Represents a character string to be encoded in a QR Code symbol.
  * Each segment has a mode, and a sequence of characters that is already encoded as
@@ -29,14 +31,14 @@ export interface QrSegment {
   /** The length of this segment's unencoded data, measured in characters. */
   readonly numChars: number;
   /** Array of 0s and 1s as all the bits */
-  readonly bitData: readonly number[];
+  readonly bitData: readonly bit[];
 }
 
 /** Creates a new QR Code segment with the given attributes and data. */
 export function qrSegment(
   mode: SegmentMode,
   numChars: number,
-  bitData: number[]
+  bitData: bit[]
 ): QrSegment {
   if (numChars < 0) throw 'Invalid argument';
   return { mode, numChars, bitData };
@@ -44,7 +46,7 @@ export function qrSegment(
 
 /** Returns a segment representing the given binary data encoded in byte mode. */
 export function makeBytes(data: number[]): QrSegment {
-  const bb: number[] = [];
+  const bb: bit[] = [];
   data.forEach((b) => appendBits(bb, b, 8));
   return qrSegment(SegmentModeConstants.BYTE, data.length, bb);
 }
@@ -53,7 +55,7 @@ export function makeBytes(data: number[]): QrSegment {
 function makeNumeric(digits: string): QrSegment {
   if (!NUMERIC_REGEX.test(digits))
     throw 'String contains non-numeric characters';
-  const bb: number[] = [];
+  const bb: bit[] = [];
   let i: number;
   for (
     i = 0;
@@ -76,7 +78,7 @@ function makeNumeric(digits: string): QrSegment {
 function makeAlphanumeric(text: string): QrSegment {
   if (!ALPHANUMERIC_REGEX.test(text))
     throw 'String contains unencodable characters in alphanumeric mode';
-  const bb: number[] = [];
+  const bb: bit[] = [];
   let i: number;
   for (i = 0; i + 2 <= text.length; i += 2) {
     // Process groups of 2
@@ -95,7 +97,7 @@ function makeAlphanumeric(text: string): QrSegment {
  * (ECI) designator with the given assignment value.
  */
 export function makeEci(assignVal: number): QrSegment {
-  const bb: number[] = [];
+  const bb: bit[] = [];
   if (0 <= assignVal && assignVal < 1 << 7) appendBits(bb, assignVal, 8);
   else if (1 << 7 <= assignVal && assignVal < 1 << 14) {
     appendBits(bb, 2, 2);

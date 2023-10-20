@@ -19,7 +19,6 @@ import {
 import { MIN_VERSION, MAX_VERSION } from './qr/constants.js';
 import { appendBits, getBytes } from './qr/bitUtils.js';
 
-type bit = number;
 type byte = number;
 type int = number;
 
@@ -634,7 +633,7 @@ function encodeSegments(
   segs.forEach((seg: QrSegment) => {
     appendBits(bb, seg.mode.modeBits, 4);
     appendBits(bb, seg.numChars, numCharCountBits(seg.mode, version));
-    seg.bitData.forEach((b: bit) => bb.push(b));
+    seg.bitData.forEach((b) => bb.push(b));
   });
 
   // Add terminator and pad up to a byte if applicable
