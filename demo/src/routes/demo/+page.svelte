@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { renderCanvas, renderText, renderTwoTone, type MaskType } from "../../../../src"
+  import { renderCanvas, renderText, renderTwoTone, type MaskType } from "scannable";
   import RenderSystemDisplay from "$lib/qr/RenderSystem.svelte";
   import { createRenderSystems } from "$lib/qr/rendererTypes";
 

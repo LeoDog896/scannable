@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { renderSVG } from "../../../src";
+  import { renderSVG } from "scannable";
 
   const links = [
     { href: "/scannable/demo", name: "Demo" },
