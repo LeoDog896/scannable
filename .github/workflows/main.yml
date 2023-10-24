@@ -19,12 +19,12 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install deps and build
-        run: pnpm i
-
       - uses: pnpm/action-setup@v2
         with:
           version: 8
+
+      - name: Install deps and build
+        run: pnpm i
 
       - name: Test
         run: pnpm run test
