@@ -51,4 +51,6 @@
   {:else}
     <canvas class="m-auto" height={size} width={size} bind:this={selectedRenderSystem.currentCanvas} />
   {/if}
+{:else if selectedRenderSystem.type == "html"}
+  {@html selectedRenderSystem.render(value, selectedRenderSystem.options)}
 {/if}

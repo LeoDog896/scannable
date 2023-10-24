@@ -1,8 +1,8 @@
-interface Option<T, R> {
+interface Option<Type, DisplayName> {
 	readonly name: string;
-	readonly type: R;
-	value: T;
-	readonly defaultValue: T;
+	readonly type: DisplayName;
+	value: Type;
+	readonly defaultValue: Type;
 }
 
 type TextOption = Option<string, 'text'>;
@@ -13,11 +13,12 @@ type NumberOption = Option<number, 'number'> & {
 	readonly max?: number;
 	readonly step?: number;
 };
-type OptionsAdvanced = {
+
+type Options = {
 	readonly [key: string]: TextOption | BooleanOption | ColorOption | NumberOption;
 };
 
-type ReturnCreateOptionsAdvanced<T extends OptionsAdvanced> = {
+type ReturnCreateOptionsAdvanced<T extends Options> = {
 	[K in keyof T]: T[K]['type'] extends 'text'
 		? TextOption
 		: T[K]['type'] extends 'boolean'
@@ -27,14 +28,14 @@ type ReturnCreateOptionsAdvanced<T extends OptionsAdvanced> = {
 		: NumberOption;
 };
 
-export type RenderSystem<OptionsType extends ReturnCreateOptionsAdvanced<OptionsAdvanced>> =
-	// Default Render System Key/Value
+export type RenderSystem<OptionsType extends ReturnCreateOptionsAdvanced<Options>> =
+	// Default Render System key / value
 	{
 		name: string;
 		options: OptionsType;
 	} & (
 		| {
-				//Canvas
+				// Canvas
 				type: 'canvas';
 				render: (
 					value: string,
@@ -51,6 +52,11 @@ export type RenderSystem<OptionsType extends ReturnCreateOptionsAdvanced<Options
 				tracking: string;
 				render: (value: string, options: OptionsType) => string;
 		  }
+    | {
+      // HTML
+      type: 'html';
+      render: (value: string, options: OptionsType) => string;
+    }
 	);
 
 export const createRenderSystems = <T extends ReturnCreateOptionsAdvanced<any>>(

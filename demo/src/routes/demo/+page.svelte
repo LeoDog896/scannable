@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { renderCanvas, renderText, renderTwoTone, type MaskType } from "scannable";
+  import { renderCanvas, renderText, renderTwoTone, renderSVG, type MaskType } from "scannable";
   import RenderSystemDisplay from "$lib/qr/RenderSystem.svelte";
   import { createRenderSystems } from "$lib/qr/rendererTypes";
 
@@ -68,6 +68,17 @@
       thickness: { type: "number", name: "Thickness", value: 1, defaultValue: 1, min: 0 },
       padding: { type: "number", name: "Padding", value: 0, defaultValue: 0, min: 0 },
       inverse: { type: "boolean", name: "Inverse", value: false, defaultValue: false },
+      customMask: { type: "boolean", value: true, defaultValue: true, name: "Custom Mask" },
+      mask: { type: "number", min: 0, max: 7, name: "Mask Number", defaultValue: 0, value: 0 }
+    }
+  }, {
+    type: "html",
+    name: "SVG",
+    render: (value, options) => renderSVG({
+      value,
+      maskType: options.customMask.value ? options.mask.value : undefined
+    }),
+    options: {
       customMask: { type: "boolean", value: true, defaultValue: true, name: "Custom Mask" },
       mask: { type: "number", min: 0, max: 7, name: "Mask Number", defaultValue: 0, value: 0 }
     }
