@@ -15,12 +15,12 @@ type NumberOption = Option<number, 'number'> & {
 };
 
 type OptionList = TextOption | BooleanOption | ColorOption | NumberOption;
-type OptionNames = OptionList["type"];
+type OptionNames = OptionList['type'];
 
 type OptionParam<T extends OptionNames> = Extract<OptionList, { type: T }>;
 
 type Options<P extends OptionNames> = {
-	readonly [key: string]: { type: P; } & OptionParam<P>;
+	readonly [key: string]: { type: P } & OptionParam<P>;
 };
 
 export type RenderSystem<OptionsType extends Options<OptionNames> = Options<OptionNames>> =
@@ -47,11 +47,11 @@ export type RenderSystem<OptionsType extends Options<OptionNames> = Options<Opti
 				tracking: string;
 				render: (value: string, options: OptionsType) => string;
 		  }
-    | {
-      // HTML
-      type: 'html';
-      render: (value: string, options: OptionsType, size: number) => string;
-    }
+		| {
+				// HTML
+				type: 'html';
+				render: (value: string, options: OptionsType, size: number) => string;
+		  }
 	);
 
 export const createRenderSystems = <OptionsType extends Options<OptionNames>>(

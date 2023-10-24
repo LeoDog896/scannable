@@ -4,6 +4,19 @@
   import { createRenderSystems } from "$lib/qr/rendererTypes";
 
   const renderSystems = createRenderSystems([{
+    type: "html",
+    name: "SVG",
+    render: (value, options, size) => renderSVG({
+      value,
+      maskType: options.customMask.value ? options.mask.value : undefined,
+      width: size,
+      height: size
+    }),
+    options: {
+      customMask: { type: "boolean", value: true, defaultValue: true, name: "Custom Mask" },
+      mask: { type: "number", min: 0, max: 7, name: "Mask Number", defaultValue: 0, value: 0 }
+    }
+  }, {
     type: "canvas",
     name: "Simple Image",
     render: (value, canvas, options, size) => {
@@ -71,19 +84,6 @@
       customMask: { type: "boolean", value: true, defaultValue: true, name: "Custom Mask" },
       mask: { type: "number", min: 0, max: 7, name: "Mask Number", defaultValue: 0, value: 0 }
     }
-  }, {
-    type: "html",
-    name: "SVG",
-    render: (value, options, size) => renderSVG({
-      value,
-      maskType: options.customMask.value ? options.mask.value : undefined,
-      width: size,
-      height: size
-    }),
-    options: {
-      customMask: { type: "boolean", value: true, defaultValue: true, name: "Custom Mask" },
-      mask: { type: "number", min: 0, max: 7, name: "Mask Number", defaultValue: 0, value: 0 }
-    }
   }])
 
   function clearCanvas(canvas: HTMLCanvasElement) {
@@ -117,7 +117,7 @@
   </div>
   <div class="border-l border-gray-400 flex-shrink flex sm:flex-col flex-row sm:w-32 w-full sm:h-full bg-gray-100 print:hidden shadow-lg">
     {#each renderSystems as renderSystem}
-      <div tabindex=0 class="
+      <button class="
         w-full text-center {selectedRenderSystem == renderSystem ? "bg-gray-200 font-bold" : "bg-gray-100"} hover:bg-gray-300
         hover:cursor-pointer transition-colors p-6 px-8 text-lg
       "
@@ -127,7 +127,7 @@
           selectedRenderSystem = renderSystem
         }
       }}
-      >{renderSystem.name}</div>
+      >{renderSystem.name}</button>
     {/each}
   </div>
   <div class="flex sm:flex-row flex-col flex-grow w-full">
