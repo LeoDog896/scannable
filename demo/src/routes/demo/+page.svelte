@@ -74,9 +74,11 @@
   }, {
     type: "html",
     name: "SVG",
-    render: (value, options) => renderSVG({
+    render: (value, options, size) => renderSVG({
       value,
-      maskType: options.customMask.value ? options.mask.value : undefined
+      maskType: options.customMask.value ? options.mask.value : undefined,
+      width: size,
+      height: size
     }),
     options: {
       customMask: { type: "boolean", value: true, defaultValue: true, name: "Custom Mask" },

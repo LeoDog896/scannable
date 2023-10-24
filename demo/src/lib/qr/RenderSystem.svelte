@@ -4,13 +4,16 @@
   import type { RenderSystem } from "./rendererTypes"
 
   export let value: string
-  export let selectedRenderSystem: RenderSystem<any>
+  export let selectedRenderSystem: RenderSystem
   
   let w: number
 
   const baseSize = 100
+  $: rawPadding = selectedRenderSystem.options.padding?.value
+  $: padding = typeof rawPadding == "number" ? rawPadding : 0
+
   $: chosenSize = Math.round(baseSize + w / 4)
-  $: size = Math.round(chosenSize + ((selectedRenderSystem.options.padding?.value || 0) * 2))
+  $: size = Math.round(chosenSize + (padding * 2))
 
   $: if (size && selectedRenderSystem.type == "canvas") {
     tick().then(() => {
@@ -52,5 +55,7 @@
     <canvas class="m-auto" height={size} width={size} bind:this={selectedRenderSystem.currentCanvas} />
   {/if}
 {:else if selectedRenderSystem.type == "html"}
-  {@html selectedRenderSystem.render(value, selectedRenderSystem.options)}
+  <div class="flex flex-row justify-center">
+    {@html selectedRenderSystem.render(value, selectedRenderSystem.options, size)}
+  </div>
 {/if}

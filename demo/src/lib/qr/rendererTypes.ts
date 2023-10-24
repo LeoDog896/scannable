@@ -14,21 +14,16 @@ type NumberOption = Option<number, 'number'> & {
 	readonly step?: number;
 };
 
-type Options = {
-	readonly [key: string]: TextOption | BooleanOption | ColorOption | NumberOption;
+type OptionList = TextOption | BooleanOption | ColorOption | NumberOption;
+type OptionNames = OptionList["type"];
+
+type OptionParam<T extends OptionNames> = Extract<OptionList, { type: T }>;
+
+type Options<P extends OptionNames> = {
+	readonly [key: string]: { type: P; } & OptionParam<P>;
 };
 
-type ReturnCreateOptionsAdvanced<T extends Options> = {
-	[K in keyof T]: T[K]['type'] extends 'text'
-		? TextOption
-		: T[K]['type'] extends 'boolean'
-		? BooleanOption
-		: T[K]['type'] extends 'color'
-		? ColorOption
-		: NumberOption;
-};
-
-export type RenderSystem<OptionsType extends ReturnCreateOptionsAdvanced<Options>> =
+export type RenderSystem<OptionsType extends Options<OptionNames> = Options<OptionNames>> =
 	// Default Render System key / value
 	{
 		name: string;
@@ -55,10 +50,10 @@ export type RenderSystem<OptionsType extends ReturnCreateOptionsAdvanced<Options
     | {
       // HTML
       type: 'html';
-      render: (value: string, options: OptionsType) => string;
+      render: (value: string, options: OptionsType, size: number) => string;
     }
 	);
 
-export const createRenderSystems = <T extends ReturnCreateOptionsAdvanced<any>>(
-	o: RenderSystem<T>[]
-): RenderSystem<T>[] => o;
+export const createRenderSystems = <OptionsType extends Options<OptionNames>>(
+	o: RenderSystem<OptionsType>[]
+): RenderSystem<OptionsType>[] => o;
