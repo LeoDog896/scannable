@@ -20,6 +20,8 @@ function randomInRanges(ranges: [number, number][]) {
 const randomChars = (length: number) =>
   Array(length)
     .fill(0)
+    // this is inherently random
+    // eslint-disable-next-line functional/functional-parameters
     .map(() => String.fromCharCode(randomInRanges([[14, 20000]])))
     .join('');
 

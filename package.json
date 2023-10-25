@@ -3,8 +3,9 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"lint": "turbo run lint",
 		"format": "prettier --plugin=prettier-plugin-svelte --plugin=prettier-plugin-organize-imports --write .",
+		"format:check": "prettier --plugin=prettier-plugin-svelte --plugin=prettier-plugin-organize-imports --check .",
+		"lint": "npm run format:check && eslint --ignore-path .gitignore .",
 		"test": "turbo run test"
 	},
 	"devDependencies": {

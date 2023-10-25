@@ -54,7 +54,7 @@ export class ReedSolomonGenerator {
   // This method does not alter this object's state (because it is immutable).
   public getRemainder(data: Array<number>): Array<number> {
     // Compute the remainder by performing polynomial division
-    const result: Array<number> = this.coefficients.map(() => 0);
+    const result: Array<number> = [...this.coefficients].fill(0);
     data.forEach((b: number) => {
       const factor = b ^ (result.shift() as number);
       result.push(0);

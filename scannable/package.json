@@ -41,8 +41,6 @@
     "build": "tsc",
     "test": "jest --coverage",
     "test:watch": "jest --watch --coverage",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
     "prepare": "npm run build",
     "size": "npm run build && size-limit",
     "analyze": "npm run build && size-limit --why",

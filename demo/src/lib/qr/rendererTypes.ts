@@ -1,17 +1,17 @@
 interface Option<Type, DisplayName> {
-	readonly name: string;
-	readonly type: DisplayName;
+	name: string;
+	type: DisplayName;
 	value: Type;
-	readonly defaultValue: Type;
+	defaultValue: Type;
 }
 
 type TextOption = Option<string, 'text'>;
 type BooleanOption = Option<boolean, 'boolean'>;
 type ColorOption = Option<string, 'color'>;
 type NumberOption = Option<number, 'number'> & {
-	readonly min?: number;
-	readonly max?: number;
-	readonly step?: number;
+	min?: number;
+	max?: number;
+	step?: number;
 };
 
 type OptionList = TextOption | BooleanOption | ColorOption | NumberOption;
@@ -20,7 +20,7 @@ type OptionNames = OptionList['type'];
 type OptionParam<T extends OptionNames> = Extract<OptionList, { type: T }>;
 
 type Options<P extends OptionNames> = {
-	readonly [key: string]: { type: P } & OptionParam<P>;
+	[key: string]: { type: P } & OptionParam<P>;
 };
 
 export type RenderSystem<OptionsType extends Options<OptionNames> = Options<OptionNames>> =

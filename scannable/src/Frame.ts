@@ -40,14 +40,16 @@ export interface FrameResults {
 }
 
 /** Utility to make value required for users inputting in a value. */
-export type UserFacingFrameOptions<T = FrameOptions> = Partial<T> & {
-  readonly value: string;
-};
+export type UserFacingFrameOptions<T = FrameOptions> = Partial<T> &
+  Readonly<{
+    value: string;
+  }>;
 
 /** Make every option required except for value -- the opposite of UserFacingFrameOptions */
-export type RenderOptionsDefaults<T = FrameOptions> = Omit<T, 'value'> & {
-  readonly value?: string;
-};
+export type RenderOptionsDefaults<T = FrameOptions> = Omit<T, 'value'> &
+  Readonly<{
+    value?: string;
+  }>;
 
 export const defaultFrameOptions: RenderOptionsDefaults<FrameOptions> =
   Object.freeze({
