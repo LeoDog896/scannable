@@ -1,13 +1,19 @@
 {
-  "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "turbo run format",
-    "test": "turbo run test"
-  },
-  "devDependencies": {
-    "turbo": "^1.10.16"
-  }
+	"private": true,
+	"scripts": {
+		"build": "turbo run build",
+		"dev": "turbo run dev",
+		"lint": "turbo run lint",
+		"format": "prettier --plugin=prettier-plugin-svelte --plugin=prettier-plugin-organize-imports --write .",
+		"test": "turbo run test"
+	},
+	"devDependencies": {
+		"eslint": "^8.51.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-svelte3": "^4.0.0",
+		"prettier": "^3.0.3",
+		"prettier-plugin-organize-imports": "^3.2.3",
+		"prettier-plugin-svelte": "^3.0.3",
+		"turbo": "^1.10.16"
+	}
 }

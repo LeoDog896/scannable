@@ -1,9 +1,9 @@
 import {
-  UserFacingFrameOptions,
-  generateFrame,
   FrameOptions,
   RenderOptionsDefaults,
+  UserFacingFrameOptions,
   defaultFrameOptions,
+  generateFrame,
 } from '../Frame.js';
 
 export interface ImageLikeRenderOptions extends FrameOptions {

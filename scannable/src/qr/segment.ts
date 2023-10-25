@@ -1,9 +1,9 @@
 import { appendBits } from './bitUtils.js';
 import { MAX_VERSION, MIN_VERSION } from './constants.js';
 import {
-  type SegmentMode,
-  numCharCountBits,
   CONSTANTS as SegmentModeConstants,
+  numCharCountBits,
+  type SegmentMode,
 } from './segmentMode.js';
 
 // Can test whether a string is encodable in numeric mode (such as by using QrSegment.makeNumeric()).

@@ -1,9 +1,9 @@
 import {
   FrameOptions,
+  FrameResults,
   UserFacingFrameOptions,
   defaultFrameOptions,
   generateFrame,
-  FrameResults,
 } from '../Frame.js';
 import { WithRequired } from '../utils.js';
 interface IsolatedTextRenderOptions {

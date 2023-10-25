@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 
+import chance from 'chance';
 import { promises as fs } from 'fs';
 import { generateFrame } from '../src';
-import chance from 'chance';
 
 const rng = new chance.Chance('scannable');
 

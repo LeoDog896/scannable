@@ -1,10 +1,10 @@
+import { encodeText } from './internal.js';
 import {
-  type ErrorCorrection,
   CONSTANTS as ErrorCorrectionConstants,
   ErrorCorrectionLevel,
   toErrorCorrectionLevel,
+  type ErrorCorrection,
 } from './qr/errorCorrection.js';
-import { encodeText } from './internal.js';
 
 /* All Mask types with visible descriptions. */
 export enum MaskType {

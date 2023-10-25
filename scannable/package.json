@@ -47,9 +47,7 @@
     "size": "npm run build && size-limit",
     "analyze": "npm run build && size-limit --why",
     "prepublishOnly": "npm run build && npm run size && eslint",
-    "resource:gen": "tsx test/resourceGen.ts",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "resource:gen": "tsx test/resourceGen.ts"
   },
   "prettier": {
     "printWidth": 80,

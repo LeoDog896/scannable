@@ -1,6 +1,6 @@
-import { generateFrame, renderText } from '../src';
 import { createReadStream } from 'fs';
 import readline from 'readline';
+import { generateFrame, renderText } from '../src';
 
 const exampleCom = `#######  ##   # # #######
 #     # ####   #  #     #
