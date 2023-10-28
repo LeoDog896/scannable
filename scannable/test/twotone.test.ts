@@ -1,4 +1,4 @@
-import { renderTwoTone } from '../src';
+import { renderTwoTone } from '../src/qr';
 
 const twoTone = `█▀▀▀▀▀█ ▄█ ▄▄▀▄▄█▀▀▀█ █▀▀▀▀▀█
 █ ███ █ ▄█▀█ ▄█▀ ▄▄█▀ █ ███ █

@@ -1,24 +1,24 @@
 /* Code ported from https://www.nayuki.io/page/qr-code-generator-library */
 
-import { appendBits, getBytes } from './qr/bitUtils.js';
+import { appendBits, getBytes } from './utils/bitUtils.js';
 import {
   ECC_CODEWORDS_PER_BLOCK,
   MAX_VERSION,
   MIN_VERSION,
   NUM_ERROR_CORRECTION_BLOCKS,
-} from './qr/constants.js';
+} from './utils/constants.js';
 import {
   ErrorCorrection,
   CONSTANTS as ErrorCorrectionConstants,
-} from './qr/errorCorrection.js';
-import { ReedSolomonGenerator } from './qr/reedSolomon.js';
+} from './utils/errorCorrection.js';
+import { ReedSolomonGenerator } from './utils/reedSolomon.js';
 import {
   getTotalBits,
   makeBytes,
   makeSegments,
   type QrSegment,
-} from './qr/segment.js';
-import { numCharCountBits } from './qr/segmentMode.js';
+} from './utils/segment.js';
+import { numCharCountBits } from './utils/segmentMode.js';
 
 type byte = number;
 type int = number;

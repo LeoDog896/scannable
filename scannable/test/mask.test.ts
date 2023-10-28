@@ -1,4 +1,4 @@
-import { renderText } from '../src';
+import { renderText } from '../src/qr';
 
 const mask0 = `#######  ###  #######
 #     #   ### #     #

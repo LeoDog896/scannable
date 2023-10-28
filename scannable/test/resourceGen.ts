@@ -2,7 +2,7 @@
 
 import chance from 'chance';
 import { promises as fs } from 'fs';
-import { generateFrame } from '../src';
+import { generateFrame } from '../src/qr';
 
 const rng = new chance.Chance('scannable');
 

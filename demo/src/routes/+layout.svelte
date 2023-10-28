@@ -1,5 +1,5 @@
 <script>
-	import { renderText, generateFrame, renderTwoTone, renderSVG } from 'scannable';
+	import { renderText, generateFrame, renderTwoTone, renderSVG } from 'scannable/qr';
 	import { onMount } from 'svelte';
 
 	onMount(() => {

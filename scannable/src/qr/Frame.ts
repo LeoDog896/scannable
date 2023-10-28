@@ -4,7 +4,7 @@ import {
   ErrorCorrectionLevel,
   toErrorCorrectionLevel,
   type ErrorCorrection,
-} from './qr/errorCorrection.js';
+} from './utils/errorCorrection.js';
 
 /* All Mask types with visible descriptions. */
 export enum MaskType {

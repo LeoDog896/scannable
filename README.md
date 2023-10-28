@@ -21,13 +21,13 @@ TIP: If you want to try out the methods, open inspect element.
 ### Deno
 
 ```ts
-import {} from 'https://esm.sh/scannable'; // all functions are exposed!
+import { ... } from 'https://esm.sh/scannable'; // all functions are exposed!
 ```
 
 ## QR Generation
 
 ```ts
-import { renderCanvas, renderSVG, renderText, renderTwoTone } from 'scannable';
+import { renderCanvas, renderSVG, renderText, renderTwoTone } from 'scannable/qr';
 
 // Render it to a canvas
 renderCanvas('https://yahoo.net', coolCanvas);
@@ -47,16 +47,3 @@ const unicodeText = renderTwoTone('https://leodog896.github.io/scannable');
 // Or make an SVG!
 const svgHTML = renderSVG('https://netflix.com');
 ```
-
-## Development
-
-There are two projects here -- the root folder, for scannable, and the demo folder, for the demo page.
-
-The demo page is running on SvelteKit.
-
-First, install dependencies: `npm i && cd demo && npm i` (installs dependencies on the root and demo folders.)
-
-To test the scannable library, run `npm run test` or `npm run test:watch` to listen to changes
-
-To run the demo, run `cd demo && npm run dev`. It will guide you on opening the website. **Make sure to go to the /scannable folder**.
-For example, `localhost:5173/scannable`

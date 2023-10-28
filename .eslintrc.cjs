@@ -2,7 +2,6 @@ module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
 	extends: [
-		'notninja/es6',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:functional/currying',
 		'plugin:functional/stylistic',

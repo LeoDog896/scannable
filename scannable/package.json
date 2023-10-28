@@ -39,6 +39,7 @@
   "scripts": {
     "start": "npm run test:watch",
     "build": "tsc",
+    "dev": "tsc --watch",
     "test": "jest --coverage",
     "test:watch": "jest --watch --coverage",
     "prepare": "npm run build",
