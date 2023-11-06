@@ -1,8 +1,8 @@
 {
   "name": "scannable",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "sideEffects": false,
-  "description": "QR code generation for a modern web.",
+  "description": "QR code generation for a modern web",
   "homepage": "https://leodog896.github.io/scannable",
   "repository": "https://github.com/LeoDog896/scannable",
   "type": "module",
@@ -14,13 +14,6 @@
     "email": "leodog896@gmail.com",
     "url": "https://github.com/LeoDog896"
   },
-  "contributors": [
-    {
-      "name": "Alasdair Mercer",
-      "email": "mercer.alasdair@gmail.com",
-      "url": "https://neocotic.com"
-    }
-  ],
   "license": "MIT",
   "keywords": [
     "qr",
@@ -31,7 +24,9 @@
     "./qr": "./dist/qr/index.js",
     "./package.json": "./package.json"
   },
-  "typings": "dist/qr/index.d.ts",
+  "typings": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
   "files": [
     "dist",
     "src"
@@ -45,7 +40,7 @@
     "dev": "tsc --watch",
     "test": "jest --coverage",
     "test:watch": "jest --watch --coverage",
-    "prepare": "npm run build",
+    "prepare": "cp ../../LICENSE . && npm run build",
     "size": "npm run build && size-limit",
     "analyze": "npm run build && size-limit --why",
     "prepublishOnly": "npm run build && npm run size && eslint",
