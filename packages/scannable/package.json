@@ -28,7 +28,8 @@
     "qr-code"
   ],
   "exports": {
-    "./qr": "./dist/qr/index.js"
+    "./qr": "./dist/qr/index.js",
+    "./package.json": "./package.json"
   },
   "typings": "dist/qr/index.d.ts",
   "files": [
