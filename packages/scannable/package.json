@@ -30,7 +30,7 @@
   "exports": {
     "./qr": "./dist/qr/index.js"
   },
-  "typings": "dist/index.d.ts",
+  "typings": "dist/qr/index.d.ts",
   "files": [
     "dist",
     "src"
