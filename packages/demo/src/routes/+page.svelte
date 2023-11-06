@@ -52,6 +52,8 @@
     border: none;
     border-bottom: 1px solid black;
     width: 100%;
+    text-align: center;
+    font-size: 1rem;
   }
 
   .center {
@@ -138,12 +140,12 @@
 	.background-animate {
 		background-size: 400%;
 
-		-webkit-animation: GradientAnimation 10s ease infinite;
-		-moz-animation: GradientAnimation 10s ease infinite;
-		animation: GradientAnimation 10s ease infinite;
+		-webkit-animation: gradientAnimation 10s ease infinite;
+		-moz-animation: gradientAnimation 10s ease infinite;
+		animation: gradientAnimation 10s ease infinite;
 	}
 
-	@keyframes GradientAnimation {
+	@keyframes gradientAnimation {
 		0%,
 		100% {
 			background-position: 0% 50%;

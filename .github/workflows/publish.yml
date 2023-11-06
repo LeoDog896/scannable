@@ -22,7 +22,7 @@ jobs:
         with:
           version: 8
       - name: Test Build
-        working-directory: ./demo
+        working-directory: ./packages/demo
         run: |
           cd demo
           pnpm i
@@ -36,10 +36,10 @@ jobs:
         with:
           version: 8
       - name: Install Dependencies
-        working-directory: ./demo
+        working-directory: ./packages/demo
         run: pnpm i
       - name: Build Project
-        working-directory: ./demo
+        working-directory: ./packages/demo
         run: pnpm run build
       - name: Setup Pages
         uses: actions/configure-pages@v2

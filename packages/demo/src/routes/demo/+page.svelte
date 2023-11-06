@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { renderCanvas, renderText, renderTwoTone, renderSVG, type MaskType } from 'scannable/qr';
+	import { renderCanvas, renderText, renderTwoTone, renderSVG } from 'scannable/qr';
 	import RenderSystemDisplay from '$lib/qr/RenderSystem.svelte';
 	import { createRenderSystems } from '$lib/qr/rendererTypes';
 
@@ -15,7 +15,7 @@
 					height: size
 				}),
 			options: {
-				customMask: { type: 'boolean', value: true, defaultValue: true, name: 'Custom Mask' },
+				customMask: { type: 'boolean', value: false, defaultValue: false, name: 'Custom Mask' },
 				mask: { type: 'number', min: 0, max: 7, name: 'Mask Number', defaultValue: 0, value: 0 }
 			}
 		},
@@ -131,7 +131,7 @@
 				thickness: { type: 'number', name: 'Thickness', value: 1, defaultValue: 1, min: 0 },
 				padding: { type: 'number', name: 'Padding', value: 0, defaultValue: 0, min: 0 },
 				inverse: { type: 'boolean', name: 'Inverse', value: false, defaultValue: false },
-				customMask: { type: 'boolean', value: true, defaultValue: true, name: 'Custom Mask' },
+				customMask: { type: 'boolean', value: false, defaultValue: false, name: 'Custom Mask' },
 				mask: { type: 'number', min: 0, max: 7, name: 'Mask Number', defaultValue: 0, value: 0 }
 			}
 		}
@@ -187,6 +187,7 @@
 				on:click={() => {
 					selectedRenderSystem = renderSystem;
 				}}
+        class="setting {selectedRenderSystem.name == renderSystem.name ? 'selected' : ''}"
 				on:keydown={(e) => {
 					if (e.key == 'Enter') {
 						selectedRenderSystem = renderSystem;
@@ -234,6 +235,15 @@
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 
+  .setting {
+    border: none;
+    padding: 1rem;
+  }
+
+  .selected {
+    background-color: #ffffff;
+  }
+
   textarea {
     margin-bottom: 2rem;
     flex-grow: 1;
@@ -246,6 +256,7 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
+    margin-top: 1rem;
   }
 
   .display-sub {
