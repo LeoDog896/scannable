@@ -27,7 +27,9 @@
     "qrcode",
     "qr-code"
   ],
-  "main": "dist/index.js",
+  "exports": {
+    "./qr": "./dist/qr/index.js"
+  },
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
@@ -54,7 +56,6 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "module": "dist/index.js",
   "size-limit": [
     {
       "path": "dist/index.js",
