@@ -1,6 +1,7 @@
 <script>
 	import { renderText, generateFrame, renderTwoTone, renderSVG } from 'scannable/qr';
 	import { onMount } from 'svelte';
+  import '@fontsource-variable/manrope';
 
 	onMount(() => {
 		globalThis.renderText = renderText;

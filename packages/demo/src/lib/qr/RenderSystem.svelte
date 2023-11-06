@@ -32,7 +32,7 @@
 
 {#if selectedRenderSystem.name == 'ASCII' && selectedRenderSystem.type == 'text'}
 	<h1
-		class="font-mono text-center my-10"
+		class="ascii"
 		style="
     line-height: 10px;
     letter-spacing: 0;
@@ -46,7 +46,7 @@
 	</h1>
 {:else if selectedRenderSystem.type == 'text'}
 	<h1
-		class="font-mono text-center my-10"
+		class="ascii"
 		style="
   line-height: {selectedRenderSystem.lineSpacing};
   letter-spacing: {selectedRenderSystem.tracking}
@@ -60,21 +60,40 @@
 {:else if selectedRenderSystem.type == 'canvas'}
 	{#if selectedRenderSystem.name == 'Simple Image'}
 		<canvas
-			class="m-auto"
+			class="center"
 			height={size}
 			width={size}
 			bind:this={selectedRenderSystem.currentCanvas}
 		/>
 	{:else}
 		<canvas
-			class="m-auto"
+			class="center"
 			height={size}
 			width={size}
 			bind:this={selectedRenderSystem.currentCanvas}
 		/>
 	{/if}
 {:else if selectedRenderSystem.type == 'html'}
-	<div class="flex flex-row justify-center">
+	<div class="html">
 		{@html selectedRenderSystem.render(value, selectedRenderSystem.options, size)}
 	</div>
 {/if}
+
+<style>
+  .ascii {
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+    font-family: monospace;
+    text-align: center;
+  }
+
+  .center {
+    margin: auto;
+  }
+
+  .html {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+</style>

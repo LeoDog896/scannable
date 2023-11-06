@@ -87,7 +87,7 @@
 					value,
 					maskType: options.customMask.value ? options.mask.value : undefined
 				}),
-			lineSpacing: '1.1rem',
+			lineSpacing: '1.6rem',
 			tracking: '-0.05em',
 			options: {
 				customMask: { type: 'boolean', value: false, defaultValue: false, name: 'Custom Mask' },
@@ -145,19 +145,19 @@
 	let value = '';
 </script>
 
-<div class="flex flex-row w-screen h-screen">
+<div class="container">
 	<div
-		class="bg-white z-10 flex-row w-1/5 place-content-between hidden sm:block print:hidden overflow-x-scroll"
+		class="settings"
 	>
+    <h1>Settings</h1>
 		{#if selectedRenderSystem.options}
-			<div class="m-4 flex flex-wrap flex-col">
+			<div>
 				{#each Object.values(selectedRenderSystem.options) as option}
-					<div class="border-b mb-12 border-gray-400">
+					<div>
 						<label for={option.name}>{option.name}:</label>
 						{#if option.type == 'text'}
 							<input
 								id={option.name}
-								class="transition-all border-b w-full"
 								bind:value={option.value}
 								placeholder={option.name}
 							/>
@@ -166,7 +166,6 @@
 						{:else if option.type == 'number'}
 							<input
 								type="number"
-								class="w-full"
 								min={option.min ?? Number.MIN_SAFE_INTEGER}
 								max={option.max ?? Number.MAX_SAFE_INTEGER}
 								step={option.step ?? 1}
@@ -181,16 +180,10 @@
 		{/if}
 	</div>
 	<div
-		class="border-l border-gray-400 flex-shrink flex sm:flex-col flex-row sm:w-32 w-full sm:h-full bg-gray-100 print:hidden shadow-lg"
+		class="categories"
 	>
 		{#each renderSystems as renderSystem}
 			<button
-				class="
-        w-full text-center {selectedRenderSystem == renderSystem
-					? 'bg-gray-200 font-bold'
-					: 'bg-gray-100'} hover:bg-gray-300
-        hover:cursor-pointer transition-colors p-6 px-8 text-lg
-      "
 				on:click={() => {
 					selectedRenderSystem = renderSystem;
 				}}
@@ -202,15 +195,65 @@
 			>
 		{/each}
 	</div>
-	<div class="flex sm:flex-row flex-col flex-grow w-full">
-		<div class="h-full flex-grow p-8">
+	<div class="display">
+		<div class="display-sub">
 			<textarea
 				tabindex="0"
 				placeholder="Type URL here (EX: https://example.com). The current QR code is empty."
-				class="flex-grow w-full text-center mb-8 print:hidden"
 				bind:value
 			/>
 			<RenderSystemDisplay {selectedRenderSystem} {value} />
 		</div>
 	</div>
 </div>
+
+<style>
+  .container {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .settings {
+    overflow-x: scroll;
+    z-index: 10;
+    flex-direction: row;
+    place-content: space-between;
+    width: 20%;
+    background-color: #ffffff;
+    padding: 2rem;
+  }
+
+  .categories {
+    display: flex;
+    flex-direction: column;
+    border-left-width: 1px;
+    border-color: #9CA3AF;
+    background-color: #F3F4F6;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  textarea {
+    margin-bottom: 2rem;
+    flex-grow: 1;
+    width: 100%;
+    text-align: center;
+  }
+
+  .display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .display-sub {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    width: calc(100% - 4rem);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+</style>

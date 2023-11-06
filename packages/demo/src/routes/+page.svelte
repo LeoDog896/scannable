@@ -10,30 +10,24 @@
 	let svgContent = 'https://leodog896.github.io/scannable';
 </script>
 
-<header
-	class="
-text-center p-8 w-full min-h-screen h-max text-white
-flex flex-col lg:flex-row justify-around items-center
-bg-gradient-to-r from-sky-500 via-blue-500 to-cyan-500 background-animate"
->
-	<div class="text-center">
-		<h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-4 drop-shadow-xl">Scannable</h1>
+<header>
+	<div class="center background-animate">
+		<h1>Scannable</h1>
 
-		<h2 class="text-3xl mb-4 drop-shadow-lg">Generate QR codes</h2>
+		<h2>Generate QR codes</h2>
 
-		<div class="flex flex-row w-full justify-center">
+		<div class="links">
 			{#each links as link}
-				<a href={link.href} class="drop-shadow-md px-4 py-1 text-xl underline mx-4 hover:gray-100">
+				<a href={link.href} class="link">
 					{link.name}
 				</a>
 			{/each}
 		</div>
 	</div>
 
-	<div class="lg:mt-0 mt-20 p-8 rounded-lg bg-white">
+	<div class="qr-container">
 		{@html renderSVG({ value: svgContent, width: 400, height: 400 })}
 		<input
-			class="text-black border-b mt-5 border-black"
 			placeholder="Enter URL"
 			bind:value={svgContent}
 		/>
@@ -41,6 +35,106 @@ bg-gradient-to-r from-sky-500 via-blue-500 to-cyan-500 background-animate"
 </header>
 
 <style>
+  .qr-container {
+    padding: 2rem;
+    margin-top: 5rem;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    text-align: center;
+  }
+
+  input {
+    margin-top: 1.25rem;
+    border-bottom-width: 1px;
+    border-color: black;
+    color: black;
+    display: block;
+    border: none;
+    border-bottom: 1px solid black;
+    width: 100%;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .link {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    text-decoration: underline;
+    color: white;
+    filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.07)) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.06));
+  }
+
+  header {
+    display: flex;
+    padding: 2rem;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: calc(100% - 4rem);
+    height: max-content;
+    min-height: calc(100vh - 4rem);
+    text-align: center;
+    color: #ffffff;
+    background-image: linear-gradient(to right, var(--tw-gradient-stops));
+    background-color: #3B82F6;
+  }
+
+  h1 {
+    margin-bottom: 1rem;
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    filter: drop-shadow(0 20px 13px rgba(0, 0, 0, 0.03)) drop-shadow(0 8px 5px rgba(0, 0, 0, 0.08));
+  }
+
+  h2 {
+    margin-bottom: 1rem;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
+  }
+
+  @media (min-width: 1024px) {
+    header {
+      flex-direction: row;
+    }
+
+    h1 {
+      font-size: 4.5rem;
+      line-height: 1;
+    }
+
+    .qr-container {
+      margin-top: 0;
+    }
+  }
+
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 3.75rem;
+    }
+  }
+
+  @media (min-width: 640px) {
+    h1 {
+      font-size: 3rem;
+    }
+  }
+
 	.background-animate {
 		background-size: 400%;
 
