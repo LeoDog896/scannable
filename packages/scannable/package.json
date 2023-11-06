@@ -29,7 +29,9 @@
   "main": "dist/index.js",
   "files": [
     "dist",
-    "src"
+    "src",
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=15"
@@ -40,7 +42,7 @@
     "dev": "tsc --watch",
     "test": "jest --coverage",
     "test:watch": "jest --watch --coverage",
-    "prepare": "cp ../../LICENSE . && npm run build",
+    "prepare": "cpy --flat ../../LICENSE . && npm run build",
     "size": "npm run build && size-limit",
     "analyze": "npm run build && size-limit --why",
     "prepublishOnly": "npm run build && npm run size && eslint",
@@ -69,7 +71,7 @@
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",
     "chance": "^1.1.11",
-    "cpy": "^11.0.0",
+    "cpy-cli": "^5.0.0",
     "eslint": "^8.51.0",
     "eslint-config-notninja": "^0.4.0",
     "eslint-config-prettier": "^9.0.0",
