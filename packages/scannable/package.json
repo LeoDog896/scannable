@@ -59,7 +59,7 @@
   },
   "size-limit": [
     {
-      "path": "dist/index.js",
+      "path": "dist/qr/index.js",
       "import": "{ renderText, renderCanvas, renderContext, renderTwoTone, renderSVG, defaultImageLikeRenderOptions, generateFrame, defaultFrameOptions }",
       "limit": "6 KB"
     }
