@@ -42,7 +42,7 @@
     "dev": "tsc --watch",
     "test": "jest --coverage",
     "test:watch": "jest --watch --coverage",
-    "prepare": "cpy --flat ../../LICENSE . && npm run build",
+    "prepare": "cpy --flat ../../LICENSE . && npm run test && npm run build",
     "size": "npm run build && size-limit",
     "analyze": "npm run build && size-limit --why",
     "prepublishOnly": "npm run build && npm run size && eslint",
