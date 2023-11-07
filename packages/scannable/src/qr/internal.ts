@@ -511,7 +511,7 @@ function getPenaltyScore(size: int, modules: readonly boolean[][]): int {
  * that should not be invoked directly by the user. To go one level up, see the QrCode.encodeSegments() function.
  */
 export function qrCode(
-  datacodewords: Array<byte>,
+  dataCodewords: Array<byte>,
   mask: int,
   version: int,
   errorCorrectionLevel: ErrorCorrection
@@ -542,7 +542,7 @@ export function qrCode(
     isFunction
   );
   const allCodewords: Array<byte> = addEccAndInterleave(
-    datacodewords,
+    dataCodewords,
     version,
     errorCorrectionLevel
   );
@@ -585,7 +585,7 @@ export function qrCode(
  * This function is considered to be lower level than simply encoding text or binary data.
  */
 function encodeSegments(
-  segs: Array<QrSegment>,
+  segments: Array<QrSegment>,
   ecl: ErrorCorrection,
   minVersion: int = 1,
   maxVersion: int = 40,
@@ -608,7 +608,7 @@ function encodeSegments(
   let dataUsedBits: int;
   for (version = minVersion; ; version++) {
     const dataCapacityBits: int = getNumDataCodewords(version, ecl) * 8; // Number of data bits available
-    const usedBits: number | null = getTotalBits(segs, version);
+    const usedBits: number | null = getTotalBits(segments, version);
     if (usedBits != null && usedBits <= dataCapacityBits) {
       dataUsedBits = usedBits;
       break; // This version number is found to be suitable
@@ -631,11 +631,11 @@ function encodeSegments(
 
   // Concatenate all segments to create the data bit string
   const bb: number[] = [];
-  segs.forEach((seg: QrSegment) => {
+  for (const seg of segments) {
     appendBits(bb, seg.mode.modeBits, 4);
     appendBits(bb, seg.numChars, numCharCountBits(seg.mode, version));
-    seg.bitData.forEach((b) => bb.push(b));
-  });
+    for (const bit of seg.bitData) bb.push(bit);
+  }
 
   // Add terminator and pad up to a byte if applicable
   const dataCapacityBits: int = getNumDataCodewords(version, ecl) * 8;
@@ -659,9 +659,16 @@ function encodeSegments(
  * QR Code version is automatically chosen for the output. The ECC level of the result may be higher than the
  * ecl argument if it can be done without increasing the version.
  */
-export function encodeText(text: string, ecl: ErrorCorrection): QrCode {
-  const segs = makeSegments(text);
-  return encodeSegments(segs, ecl);
+export function encodeText(
+  text: string,
+  ecl: ErrorCorrection,
+  minVersion: int = 1,
+  maxVersion: int = 40,
+  mask: int = -1,
+  boostEcl = true
+): QrCode {
+  const segments = makeSegments(text);
+  return encodeSegments(segments, ecl, minVersion, maxVersion, mask, boostEcl);
 }
 
 /**

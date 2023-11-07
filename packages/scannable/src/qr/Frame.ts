@@ -28,6 +28,12 @@ export interface FrameOptions {
   readonly level: ErrorCorrection | ErrorCorrectionLevel;
   /** The mask type. IF none is specified, one will be automatically chosen based on badness. */
   readonly maskType?: MaskType;
+  /** The minimum version to be used. Default is 1 */
+  readonly minVersion?: number;
+  /** The maximum version to be used. Default is 40 */
+  readonly maxVersion?: number;
+  /** The mask to be used. If none is specified, one will be automatically chosen based on badness. */
+  readonly mask?: number;
 }
 
 export interface FrameResults {
@@ -65,7 +71,10 @@ export function generateFrame(options: UserFacingFrameOptions): FrameResults {
   const level = options.level ?? defaultFrameOptions.level;
   const qrCode = encodeText(
     options.value,
-    typeof level == 'string' ? toErrorCorrectionLevel(level) : level
+    typeof level == 'string' ? toErrorCorrectionLevel(level) : level,
+    options.minVersion,
+    options.maxVersion,
+    options.mask,
   );
 
   return {
