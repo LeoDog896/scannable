@@ -19,13 +19,18 @@ TIP: If you want to try out the methods, open inspect element.
 ### Deno
 
 ```ts
-import { ... } from 'https://esm.sh/scannable'; // all functions are exposed!
+import {} from 'https://esm.sh/scannable'; // all functions are exposed!
 ```
 
 ## QR Generation
 
 ```ts
-import { renderCanvas, renderSVG, renderText, renderTwoTone } from 'scannable/qr';
+import {
+	renderCanvas,
+	renderSVG,
+	renderText,
+	renderTwoTone,
+} from 'scannable/qr';
 
 // Render it to a canvas
 renderCanvas('https://yahoo.net', coolCanvas);
@@ -36,7 +41,7 @@ const text = renderText('https://example.com');
 // You can also specify options
 const customText = renderText({
 	value: 'https://google.com',
-	foregroundChar: '%'
+	foregroundChar: '%',
 });
 
 // You can even use unicode characters to squish text.

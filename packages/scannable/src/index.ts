@@ -1,3 +1,3 @@
-import * as qr from "./qr";
+import * as qr from './qr';
 
 export { qr };

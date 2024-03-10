@@ -1,34 +1,34 @@
 import {
-  FrameOptions,
-  RenderOptionsDefaults,
-  UserFacingFrameOptions,
-  defaultFrameOptions,
-  generateFrame,
+	FrameOptions,
+	RenderOptionsDefaults,
+	UserFacingFrameOptions,
+	defaultFrameOptions,
+	generateFrame,
 } from '../Frame.js';
 
 export interface ImageLikeRenderOptions extends FrameOptions {
-  readonly backgroundColor: string;
-  readonly backgroundAlpha: number;
-  readonly foregroundColor: string;
-  readonly foregroundAlpha: number;
-  readonly width: number;
-  readonly height: number;
-  readonly x: number;
-  readonly y: number;
+	readonly backgroundColor: string;
+	readonly backgroundAlpha: number;
+	readonly foregroundColor: string;
+	readonly foregroundAlpha: number;
+	readonly width: number;
+	readonly height: number;
+	readonly x: number;
+	readonly y: number;
 }
 
 export const defaultImageLikeRenderOptions: RenderOptionsDefaults<ImageLikeRenderOptions> =
-  Object.freeze({
-    backgroundColor: 'white',
-    backgroundAlpha: 1,
-    foregroundColor: 'black',
-    foregroundAlpha: 1,
-    width: 100,
-    height: 100,
-    x: 0,
-    y: 0,
-    ...defaultFrameOptions,
-  });
+	Object.freeze({
+		backgroundColor: 'white',
+		backgroundAlpha: 1,
+		foregroundColor: 'black',
+		foregroundAlpha: 1,
+		width: 100,
+		height: 100,
+		x: 0,
+		y: 0,
+		...defaultFrameOptions,
+	});
 
 /**
  * Renders a QR code onto a canvas context
@@ -39,68 +39,68 @@ export const defaultImageLikeRenderOptions: RenderOptionsDefaults<ImageLikeRende
  * @param height - The height of the QR code, **not the canvas**
  */
 export const renderContext = (
-  options: UserFacingFrameOptions<ImageLikeRenderOptions> | string,
-  context: CanvasRenderingContext2D,
-  width?: number,
-  height?: number
+	options: UserFacingFrameOptions<ImageLikeRenderOptions> | string,
+	context: CanvasRenderingContext2D,
+	width?: number,
+	height?: number
 ) => {
-  const jsonOptions =
-    typeof options === 'string' ? { value: options } : options;
+	const jsonOptions =
+		typeof options === 'string' ? { value: options } : options;
 
-  const processedOptions: ImageLikeRenderOptions = {
-    ...defaultImageLikeRenderOptions,
-    width: width ?? context.canvas.width - (jsonOptions.x ?? 0) * 2,
-    height: height ?? context.canvas.height - (jsonOptions.y ?? 0) * 2,
-    ...jsonOptions,
-  };
+	const processedOptions: ImageLikeRenderOptions = {
+		...defaultImageLikeRenderOptions,
+		width: width ?? context.canvas.width - (jsonOptions.x ?? 0) * 2,
+		height: height ?? context.canvas.height - (jsonOptions.y ?? 0) * 2,
+		...jsonOptions,
+	};
 
-  const frame = generateFrame(processedOptions);
+	const frame = generateFrame(processedOptions);
 
-  const rawModuleSizeWidth = processedOptions.width / frame.size;
-  const rawModuleSizeHeight = processedOptions.height / frame.size;
+	const rawModuleSizeWidth = processedOptions.width / frame.size;
+	const rawModuleSizeHeight = processedOptions.height / frame.size;
 
-  const offsetX = ((rawModuleSizeWidth % 1) * frame.size) / 2;
-  const offsetY = ((rawModuleSizeHeight % 1) * frame.size) / 2;
+	const offsetX = ((rawModuleSizeWidth % 1) * frame.size) / 2;
+	const offsetY = ((rawModuleSizeHeight % 1) * frame.size) / 2;
 
-  const moduleSizeWidth = Math.floor(rawModuleSizeWidth);
-  const moduleSizeHeight = Math.floor(rawModuleSizeHeight);
+	const moduleSizeWidth = Math.floor(rawModuleSizeWidth);
+	const moduleSizeHeight = Math.floor(rawModuleSizeHeight);
 
-  for (let i = 0; i < frame.size; i++) {
-    for (let j = 0; j < frame.size; j++) {
-      if (frame.buffer[j * frame.size + i]) {
-        context.fillStyle = processedOptions.foregroundColor;
-        context.globalAlpha = processedOptions.foregroundAlpha;
+	for (let i = 0; i < frame.size; i++) {
+		for (let j = 0; j < frame.size; j++) {
+			if (frame.buffer[j * frame.size + i]) {
+				context.fillStyle = processedOptions.foregroundColor;
+				context.globalAlpha = processedOptions.foregroundAlpha;
 
-        context.fillRect(
-          offsetX + moduleSizeWidth * i + processedOptions.x,
-          offsetY + moduleSizeHeight * j + processedOptions.y,
-          moduleSizeWidth,
-          moduleSizeHeight
-        );
-      } else {
-        context.fillStyle = processedOptions.backgroundColor;
-        context.globalAlpha = processedOptions.backgroundAlpha;
+				context.fillRect(
+					offsetX + moduleSizeWidth * i + processedOptions.x,
+					offsetY + moduleSizeHeight * j + processedOptions.y,
+					moduleSizeWidth,
+					moduleSizeHeight
+				);
+			} else {
+				context.fillStyle = processedOptions.backgroundColor;
+				context.globalAlpha = processedOptions.backgroundAlpha;
 
-        context.fillRect(
-          offsetX + moduleSizeWidth * i + processedOptions.x,
-          offsetY + moduleSizeHeight * j + processedOptions.y,
-          moduleSizeWidth,
-          moduleSizeHeight
-        );
-      }
-    }
-  }
+				context.fillRect(
+					offsetX + moduleSizeWidth * i + processedOptions.x,
+					offsetY + moduleSizeHeight * j + processedOptions.y,
+					moduleSizeWidth,
+					moduleSizeHeight
+				);
+			}
+		}
+	}
 };
 
 export const renderCanvas = (
-  options: UserFacingFrameOptions<ImageLikeRenderOptions> | string,
-  canvas: HTMLCanvasElement
+	options: UserFacingFrameOptions<ImageLikeRenderOptions> | string,
+	canvas: HTMLCanvasElement
 ) => {
-  const context = canvas.getContext('2d');
+	const context = canvas.getContext('2d');
 
-  if (context == null) {
-    throw Error('2d Context is null!');
-  }
+	if (context == null) {
+		throw Error('2d Context is null!');
+	}
 
-  return renderContext(options, context);
+	return renderContext(options, context);
 };

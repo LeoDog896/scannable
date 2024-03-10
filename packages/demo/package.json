@@ -1,6 +1,6 @@
 {
 	"name": "demo",
-  "private": true,
+	"private": true,
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",

@@ -80,20 +80,20 @@
 {/if}
 
 <style>
-  .ascii {
-    margin-top: 2.5rem;
-    margin-bottom: 2.5rem;
-    font-family: monospace;
-    text-align: center;
-  }
+	.ascii {
+		margin-top: 2.5rem;
+		margin-bottom: 2.5rem;
+		font-family: monospace;
+		text-align: center;
+	}
 
-  .center {
-    margin: auto;
-  }
+	.center {
+		margin: auto;
+	}
 
-  .html {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-  }
+	.html {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
 </style>

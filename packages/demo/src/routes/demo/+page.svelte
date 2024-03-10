@@ -146,21 +146,15 @@
 </script>
 
 <div class="container">
-	<div
-		class="settings"
-	>
-    <h1>Settings</h1>
+	<div class="settings">
+		<h1>Settings</h1>
 		{#if selectedRenderSystem.options}
 			<div>
 				{#each Object.values(selectedRenderSystem.options) as option}
 					<div>
 						<label for={option.name}>{option.name}:</label>
 						{#if option.type == 'text'}
-							<input
-								id={option.name}
-								bind:value={option.value}
-								placeholder={option.name}
-							/>
+							<input id={option.name} bind:value={option.value} placeholder={option.name} />
 						{:else if option.type == 'color'}
 							<input type="color" bind:value={option.value} />
 						{:else if option.type == 'number'}
@@ -179,15 +173,13 @@
 			</div>
 		{/if}
 	</div>
-	<div
-		class="categories"
-	>
+	<div class="categories">
 		{#each renderSystems as renderSystem}
 			<button
 				on:click={() => {
 					selectedRenderSystem = renderSystem;
 				}}
-        class="setting {selectedRenderSystem.name == renderSystem.name ? 'selected' : ''}"
+				class="setting {selectedRenderSystem.name == renderSystem.name ? 'selected' : ''}"
 				on:keydown={(e) => {
 					if (e.key == 'Enter') {
 						selectedRenderSystem = renderSystem;
@@ -209,62 +201,64 @@
 </div>
 
 <style>
-  .container {
-    display: flex;
-    flex-direction: row;
-    width: 100vw;
-    height: 100vh;
-  }
+	.container {
+		display: flex;
+		flex-direction: row;
+		width: 100vw;
+		height: 100vh;
+	}
 
-  .settings {
-    overflow-x: scroll;
-    z-index: 10;
-    flex-direction: row;
-    place-content: space-between;
-    width: 20%;
-    background-color: #ffffff;
-    padding: 2rem;
-  }
+	.settings {
+		overflow-x: scroll;
+		z-index: 10;
+		flex-direction: row;
+		place-content: space-between;
+		width: 20%;
+		background-color: #ffffff;
+		padding: 2rem;
+	}
 
-  .categories {
-    display: flex;
-    flex-direction: column;
-    border-left-width: 1px;
-    border-color: #9CA3AF;
-    background-color: #F3F4F6;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
+	.categories {
+		display: flex;
+		flex-direction: column;
+		border-left-width: 1px;
+		border-color: #9ca3af;
+		background-color: #f3f4f6;
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.1),
+			0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	}
 
-  .setting {
-    border: none;
-    padding: 1rem;
-  }
+	.setting {
+		border: none;
+		padding: 1rem;
+	}
 
-  .selected {
-    background-color: #ffffff;
-  }
+	.selected {
+		background-color: #ffffff;
+	}
 
-  textarea {
-    margin-bottom: 2rem;
-    flex-grow: 1;
-    width: 100%;
-    text-align: center;
-  }
+	textarea {
+		margin-bottom: 2rem;
+		flex-grow: 1;
+		width: 100%;
+		text-align: center;
+	}
 
-  .display {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    margin-top: 1rem;
-  }
+	.display {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		margin-top: 1rem;
+	}
 
-  .display-sub {
-    padding-left: 2rem;
-    padding-right: 2rem;
-    width: calc(100% - 4rem);
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-  }
+	.display-sub {
+		padding-left: 2rem;
+		padding-right: 2rem;
+		width: calc(100% - 4rem);
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+	}
 </style>

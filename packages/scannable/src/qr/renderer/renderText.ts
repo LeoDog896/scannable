@@ -1,38 +1,38 @@
 import {
-  FrameOptions,
-  FrameResults,
-  UserFacingFrameOptions,
-  defaultFrameOptions,
-  generateFrame,
+	FrameOptions,
+	FrameResults,
+	UserFacingFrameOptions,
+	defaultFrameOptions,
+	generateFrame,
 } from '../Frame.js';
 import { WithRequired } from '../utils.js';
 interface IsolatedTextRenderOptions {
-  /** The activated characters (black on a regular QR code.) */
-  readonly foregroundChar: string;
-  /** The non-activated characters (white on a regular QR code) */
-  readonly backgroundChar: string;
+	/** The activated characters (black on a regular QR code.) */
+	readonly foregroundChar: string;
+	/** The non-activated characters (white on a regular QR code) */
+	readonly backgroundChar: string;
 }
 
 export const renderTextFromFrame = (
-  options: IsolatedTextRenderOptions,
-  frame: FrameResults
+	options: IsolatedTextRenderOptions,
+	frame: FrameResults
 ): string => {
-  let str = '';
+	let str = '';
 
-  for (let i = 0; i < frame.size; i++) {
-    for (let j = 0; j < frame.size; j++) {
-      if (frame.buffer[j * frame.size + i]) {
-        str += options.foregroundChar;
-      } else {
-        str += options.backgroundChar;
-      }
-    }
-    if (i !== frame.size - 1) {
-      str += '\n';
-    }
-  }
+	for (let i = 0; i < frame.size; i++) {
+		for (let j = 0; j < frame.size; j++) {
+			if (frame.buffer[j * frame.size + i]) {
+				str += options.foregroundChar;
+			} else {
+				str += options.backgroundChar;
+			}
+		}
+		if (i !== frame.size - 1) {
+			str += '\n';
+		}
+	}
 
-  return str;
+	return str;
 };
 
 /**
@@ -48,16 +48,16 @@ type TextRenderOptions = FrameOptions & IsolatedTextRenderOptions;
  * @returns The QR code in text format
  */
 export const renderText = (
-  options: Readonly<UserFacingFrameOptions<TextRenderOptions>> | string
+	options: Readonly<UserFacingFrameOptions<TextRenderOptions>> | string
 ): string => {
-  const processedOptions: WithRequired<TextRenderOptions, 'value'> = {
-    ...defaultFrameOptions,
-    foregroundChar: '#',
-    backgroundChar: ' ',
-    ...(typeof options === 'string' ? { value: options } : options),
-  };
+	const processedOptions: WithRequired<TextRenderOptions, 'value'> = {
+		...defaultFrameOptions,
+		foregroundChar: '#',
+		backgroundChar: ' ',
+		...(typeof options === 'string' ? { value: options } : options),
+	};
 
-  const frame = generateFrame(processedOptions);
+	const frame = generateFrame(processedOptions);
 
-  return renderTextFromFrame(processedOptions, frame);
+	return renderTextFromFrame(processedOptions, frame);
 };
