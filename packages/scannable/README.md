@@ -14,7 +14,9 @@ TIP: If you want to try out the methods, open inspect element.
 
 ## Install
 
-`npm i scannable`
+```sh
+npm install scannable
+```
 
 ### Deno
 
