@@ -21,12 +21,11 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 8
+      - name: Install dependencies
+        run: pnpm install
       - name: Test Build
-        working-directory: ./packages/demo
-        run: |
-          cd demo
-          pnpm i
-          pnpm run build
+        working-directory: ./packages/@scannable/svelte
+        run: pnpm run build
   gh-release:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -36,10 +35,10 @@ jobs:
         with:
           version: 8
       - name: Install Dependencies
-        working-directory: ./packages/demo
+        working-directory: ./packages/@scannable/svelte
         run: pnpm i
       - name: Build Project
-        working-directory: ./packages/demo
+        working-directory: ./packages/@scannable/svelte
         run: pnpm run build
       - name: Setup Pages
         uses: actions/configure-pages@v2
@@ -47,7 +46,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: 'packages/demo/build'
+          path: 'packages/@scannable/svelte/build'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
