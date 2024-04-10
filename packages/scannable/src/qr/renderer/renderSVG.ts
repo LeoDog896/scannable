@@ -73,9 +73,9 @@ export const renderSVG = (
 		}
 	}
 
-	return `<svg width=${processedOptions.width} height=${
+	return `<svg width="${processedOptions.width}" height=$"{
 		processedOptions.height
-	}>${rectangles
+	}">${rectangles
 		.map(
 			({ x, y, enabled }) =>
 				`<rect width="${moduleSizeWidth}" height="${moduleSizeHeight}" x="${x}" y="${y}" style="${generateStyle(
