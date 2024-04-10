@@ -73,7 +73,7 @@ export const renderSVG = (
 		}
 	}
 
-	return `<svg width="${processedOptions.width}" height=$"{
+	return `<svg width="${processedOptions.width}" height="${
 		processedOptions.height
 	}" xmlns="http://www.w3.org/2000/svg">${rectangles
 		.map(
