@@ -26,7 +26,7 @@
 				clearCanvas(canvas);
 				const context = canvas.getContext('2d');
 				context.fillStyle = options.backgroundColor.value;
-				context.globalAlpha = options.backgroundTransparency.value;
+				context.globalAlpha = options.backgroundOpacity.value;
 				context.fillRect(0, 0, canvas.width, canvas.height);
 				renderCanvas(
 					{
@@ -56,18 +56,18 @@
 					value: '#ffffff',
 					defaultValue: '#ffffff'
 				},
-				foregroundTransparency: {
+				foregroundOpacity: {
 					type: 'number',
-					name: 'Foreground Transparency',
+					name: 'Foreground Opacity',
 					value: 1,
 					defaultValue: 1,
 					min: 0,
 					max: 1,
 					step: 0.1
 				},
-				backgroundTransparency: {
+				backgroundOpacity: {
 					type: 'number',
-					name: 'Background Transparency',
+					name: 'Background Opacity',
 					value: 1,
 					defaultValue: 1,
 					min: 0,
